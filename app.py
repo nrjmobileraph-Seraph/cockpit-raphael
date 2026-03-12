@@ -143,18 +143,18 @@ st.markdown("""
 
 def init_db():
     import shutil, os
-    backup_dir = os.path.join(os.path.dirname(DB_PATH), 'backups')
-    os.makedirs(backup_dir, exist_ok=True)
-    from datetime import date as _d
-    bp = os.path.join(backup_dir, f'cockpit_{_d.today()}.db')
-    if not os.path.exists(bp):
-        try:
+    try:
+        backup_dir = os.path.join(os.path.dirname(DB_PATH), 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        from datetime import date as _d
+        bp = os.path.join(backup_dir, f'cockpit_{_d.today()}.db')
+        if not os.path.exists(bp) and os.path.exists(DB_PATH):
             shutil.copy2(DB_PATH, bp)
             backups = sorted(os.listdir(backup_dir))
             while len(backups) > 10:
                 os.remove(os.path.join(backup_dir, backups.pop(0)))
-        except:
-            pass
+    except:
+        pass
     conn = db_wrapper.connect(DB_PATH)
     c = conn.cursor()
     c.executescript("""
