@@ -8,10 +8,10 @@ import re
 
 import os
 DB_CONFIG = {
-    'host': os.environ.get('DB_HOST', 'db.zyizvlrwsatxqehhqiwh.supabase.co'),
-    'port': int(os.environ.get('DB_PORT', 5432)),
+    'host': os.environ.get('DB_HOST', 'aws-0-eu-west-1.pooler.supabase.com'),
+    'port': int(os.environ.get('DB_PORT', 6543)),
     'dbname': os.environ.get('DB_NAME', 'postgres'),
-    'user': os.environ.get('DB_USER', 'postgres'),
+    'user': os.environ.get('DB_USER', 'postgres.zyizvlrwsatxqehhqiwh'),
     'password': os.environ.get('DB_PASS', 'Seraphetraph/62//26**')
 }
 
