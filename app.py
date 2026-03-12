@@ -2061,7 +2061,11 @@ button:hover, .stButton>button:hover {
                 st.session_state.connected = True
                 st.rerun()
         return
-    profil=get_profil(); cap=get_capital()
+    try:
+        profil=get_profil(); cap=get_capital()
+    except Exception as e:
+        st.error(f"Erreur connexion base : {e}")
+        st.stop()
     if not profil or not cap:
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
