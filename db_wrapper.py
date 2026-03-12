@@ -6,12 +6,13 @@ import psycopg2
 import psycopg2.extras
 import re
 
+import os
 DB_CONFIG = {
-    'host': 'db.zyizvlrwsatxqehhqiwh.supabase.co',
-    'port': 5432,
-    'dbname': 'postgres',
-    'user': 'postgres',
-    'password': 'Seraphetraph/62//26**'
+    'host': os.environ.get('DB_HOST', 'db.zyizvlrwsatxqehhqiwh.supabase.co'),
+    'port': int(os.environ.get('DB_PORT', 5432)),
+    'dbname': os.environ.get('DB_NAME', 'postgres'),
+    'user': os.environ.get('DB_USER', 'postgres'),
+    'password': os.environ.get('DB_PASS', 'Seraphetraph/62//26**')
 }
 
 class DictRow(dict):
