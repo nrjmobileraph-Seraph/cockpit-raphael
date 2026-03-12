@@ -1,0 +1,7 @@
+﻿__pycache__/
+*.pyc
+backups/
+.streamlit/secrets.toml
+app.py.backup*
+cockpit.db
+*.py~
