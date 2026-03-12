@@ -142,116 +142,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def init_db():
-    import shutil, os
     try:
+        import shutil, os
         backup_dir = os.path.join(os.path.dirname(DB_PATH), 'backups')
         os.makedirs(backup_dir, exist_ok=True)
         from datetime import date as _d
         bp = os.path.join(backup_dir, f'cockpit_{_d.today()}.db')
         if not os.path.exists(bp) and os.path.exists(DB_PATH):
             shutil.copy2(DB_PATH, bp)
-            backups = sorted(os.listdir(backup_dir))
-            while len(backups) > 10:
-                os.remove(os.path.join(backup_dir, backups.pop(0)))
     except:
         pass
-    conn = db_wrapper.connect(DB_PATH)
-    c = conn.cursor()
-    c.executescript("""
-    CREATE TABLE IF NOT EXISTS profil (
-        id INTEGER PRIMARY KEY,
-        nom TEXT DEFAULT 'Raphaël',
-        date_naissance TEXT DEFAULT '1975-08-26',
-        age_cible INTEGER DEFAULT 92,
-        capital_cible INTEGER DEFAULT 50000,
-        taux_mdph INTEGER DEFAULT 75,
-        aah_mensuel REAL DEFAULT 1033,
-        pch_mensuel REAL DEFAULT 0,
-        loyer_net REAL DEFAULT 320,
-        rail_mensuel REAL DEFAULT 2760,
-        rendement_annuel REAL DEFAULT 0.035,
-        rvd_mensuel REAL DEFAULT 450,
-        updated TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS capital (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT DEFAULT CURRENT_DATE,
-        cc REAL DEFAULT 500,
-        livret_a REAL DEFAULT 22950,
-        ldds REAL DEFAULT 12000,
-        lep REAL DEFAULT 10000,
-        av1 REAL DEFAULT 100000,
-        av2 REAL DEFAULT 100000,
-        av3 REAL DEFAULT 128242,
-        av1_date_ouverture TEXT DEFAULT '2016-01-01',
-        av2_date_ouverture TEXT DEFAULT '2026-01-01',
-        av3_date_ouverture TEXT DEFAULT '2010-01-01',
-        av1_versements REAL DEFAULT 95000,
-        av2_versements REAL DEFAULT 500,
-        av3_versements REAL DEFAULT 110000,
-        av1_rendement REAL DEFAULT 0.035,
-        av2_rendement REAL DEFAULT 0.035,
-        av3_rendement REAL DEFAULT 0.035,
-        note TEXT DEFAULT '',
-        updated TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS surplus_affectation (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT DEFAULT CURRENT_DATE,
-        montant REAL,
-        destination TEXT,
-        note TEXT
-    );
-    CREATE TABLE IF NOT EXISTS lmnp (
-        id INTEGER PRIMARY KEY,
-        date_acquisition TEXT DEFAULT '2010-01-01',
-        valeur_acquisition REAL DEFAULT 165000,
-        valeur_terrain REAL DEFAULT 30000,
-        travaux REAL DEFAULT 0,
-        loyer_brut_mensuel REAL DEFAULT 680,
-        charges_annuelles REAL DEFAULT 2000,
-        duree_amort_immeuble INTEGER DEFAULT 30,
-        duree_amort_mobilier INTEGER DEFAULT 7,
-        valeur_mobilier REAL DEFAULT 8000,
-        taux_irl_dernier REAL DEFAULT 0.026,
-        date_derniere_revalorisation TEXT DEFAULT '2025-01-01',
-        updated TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS jalons_notes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        age_jalon INTEGER,
-        note TEXT,
-        fait INTEGER DEFAULT 0,
-        date_fait TEXT
-    );
-    """)
-    # Migration: add missing columns to existing DB
-    migrations = [
-        ("ALTER TABLE capital ADD COLUMN av1_date_ouverture TEXT DEFAULT '2016-01-01'", None),
-        ("ALTER TABLE capital ADD COLUMN av2_date_ouverture TEXT DEFAULT '2026-01-01'", None),
-        ("ALTER TABLE capital ADD COLUMN av3_date_ouverture TEXT DEFAULT '2010-01-01'", None),
-        ("ALTER TABLE capital ADD COLUMN av1_versements REAL DEFAULT 95000", None),
-        ("ALTER TABLE capital ADD COLUMN av2_versements REAL DEFAULT 500", None),
-        ("ALTER TABLE capital ADD COLUMN av3_versements REAL DEFAULT 110000", None),
-        ("ALTER TABLE capital ADD COLUMN av1_rendement REAL DEFAULT 0.035", None),
-        ("ALTER TABLE capital ADD COLUMN av2_rendement REAL DEFAULT 0.035", None),
-        ("ALTER TABLE capital ADD COLUMN av3_rendement REAL DEFAULT 0.035", None),
-        ("ALTER TABLE profil ADD COLUMN pch_mensuel REAL DEFAULT 0", None),
-        ("ALTER TABLE profil ADD COLUMN rvd_mensuel REAL DEFAULT 450", None),
-    ]
-    for sql, _ in migrations:
-        try: c.execute(sql)
-        except: pass  # Column already exists
-
-    if not c.execute("SELECT id FROM profil").fetchone():
-        c.execute("INSERT INTO profil DEFAULT VALUES")
-    if not c.execute("SELECT id FROM capital").fetchone():
-        c.execute("INSERT INTO capital DEFAULT VALUES")
-    if not c.execute("SELECT id FROM lmnp").fetchone():
-        c.execute("INSERT INTO lmnp DEFAULT VALUES")
-    conn.commit()
-    conn.close()
-
 def get_profil():
     conn = db_wrapper.connect(DB_PATH)
     c = conn.cursor()
