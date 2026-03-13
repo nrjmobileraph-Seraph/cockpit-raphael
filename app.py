@@ -65,18 +65,7 @@ else:
         if st.button("\u276E", key="close_sb"):
             st.session_state.sidebar_state = "collapsed"
             st.rerun()
-        st.markdown("""<style>
-            div[data-testid="stSidebar"] button[kind="secondary"] {
-                background: #1a0a12 !important;
-                color: #FFD060 !important;
-                border: 2px solid #FFD060 !important;
-                border-radius: 8px !important;
-                font-weight: bold !important;
-            }
-        </style>""", unsafe_allow_html=True)
-        if st.button("FERMER LE MENU", key="close_sb", use_container_width=True):
-            st.session_state.sidebar_open = False
-            st.rerun()
+
         st.markdown("## Cockpit Raphael")
         st.markdown(f"**Age :** {age:.1f} ans")
         st.markdown('<div style="background:#0A2010;border:1px solid #1A6B4B;border-radius:6px;padding:8px 12px;margin:4px 0;text-align:center;"><span style="color:#4DFF99;font-size:11px;font-weight:700;letter-spacing:1px;">PLAN OPERATIONNEL</span><br><span style="color:#BBA888;font-size:10px;">Garanti jusqu&#39;a 92 ans</span></div>', unsafe_allow_html=True)
