@@ -2097,8 +2097,6 @@ button:hover, .stButton>button:hover {
         elif no: st.markdown(f"{no} alertes(s) orange")
         else: st.markdown("Aucune alerte")
         st.markdown("---")
-        except:
-            st.markdown("## Cockpit Raphael")
         page=st.radio("Navigation",[
             "Tableau de bord",
             "Moteur ARVA (Rente)",
