@@ -2070,8 +2070,9 @@ button:hover, .stButton>button:hover {
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
     with st.sidebar:
-        st.markdown("## Cockpit Raphael")
-        st.markdown(f"**Age :** {age:.1f} ans")
+        try:
+            st.markdown("## Cockpit Raphael")
+            st.markdown(f"**Age :** {age:.1f} ans")
         st.markdown('<div style="background:#0A2010;border:1px solid #1A6B4B;border-radius:6px;padding:8px 12px;margin:4px 0;text-align:center;"><span style="color:#4DFF99;font-size:11px;font-weight:700;letter-spacing:1px;">PLAN OPERATIONNEL</span><br><span style="color:#BBA888;font-size:10px;">Garanti jusqu&#39;a 92 ans</span></div>', unsafe_allow_html=True)
         st.markdown(f"**Capital :** {C:,.0f} EUR")
         st.markdown(f"**Rail :** {profil['rail_mensuel']:,.0f} EUR/mois")
@@ -2088,6 +2089,8 @@ button:hover, .stButton>button:hover {
         elif no: st.markdown(f"{no} alertes(s) orange")
         else: st.markdown("Aucune alerte")
         st.markdown("---")
+        except:
+            st.markdown("## Cockpit Raphael")
         page=st.radio("Navigation",[
             "Tableau de bord",
             "Moteur ARVA (Rente)",
