@@ -22,10 +22,9 @@ st.markdown("""<style>
     [data-testid="stSidebar"] > div {display: block !important; width: 300px !important;}
     [data-testid="collapsedControl"] {display: block !important;}
     @media (max-width: 768px) {
-        [data-testid="stSidebar"] {width: 70vw !important; min-width: 200px !important; max-width: 280px !important; z-index: 999 !important;}
-        [data-testid="stSidebar"][aria-expanded="false"] {display: none !important; margin-left: -300px !important;}
-        .main .block-container {padding: 1rem 0.5rem !important;}
-        [data-testid="collapsedControl"] {display: block !important; position: fixed !important; top: 5px !important; left: 5px !important; z-index: 9999 !important; background: #1a0a12 !important; border: 2px solid #FFD060 !important; border-radius: 8px !important; padding: 8px 12px !important; font-size: 24px !important;}
+        [data-testid="stSidebar"] {display: none !important;}
+        [data-testid="collapsedControl"] {display: none !important;}
+        .main .block-container {padding: 0.5rem !important; max-width: 100% !important;}
     }
     section[data-testid="stSidebar"] {display: block !important; opacity: 1 !important; width: 300px !important; transform: none !important;}
     section[data-testid="stSidebar"] {display: block !important; opacity: 1 !important; width: 300px !important; transform: none !important;}
@@ -2082,6 +2081,22 @@ button:hover, .stButton>button:hover {
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
 
+    # Menu mobile (visible seulement sur petit ecran)
+    st.markdown("""<style>
+        @media (min-width: 769px) { .mobile-menu { display: none !important; } }
+        @media (max-width: 768px) { .mobile-menu { display: block !important; } }
+    </style>""", unsafe_allow_html=True)
+    with st.container():
+        st.markdown('<div class="mobile-menu">', unsafe_allow_html=True)
+        page_mobile = st.selectbox("Navigation", [
+            "Tableau de bord","Moteur ARVA (Rente)","Suivi AV x 3 contrats",
+            "Scenarios simulateurs","Fiscal & CAF","Declaration impots",
+            "LMNP (Location Meublee) & IRL","Jalons & Actions",
+            "AAH / CAF / PCH (Allocations)","Inflation","Succession",
+            "Mode Senior","Bilan d exportation","BoursoBank","Crypto",
+            "Annexe - Reference","Parametres","Saisie capital"],
+            key="mobile_nav")
+        st.markdown('</div>', unsafe_allow_html=True)
     with st.sidebar:
         st.markdown('<div style="text-align:center;padding:10px;"><span style="color:#FFD060;font-size:20px;font-weight:bold;">COCKPIT RAPHAEL</span></div>', unsafe_allow_html=True)
         st.markdown(f'<div style="text-align:center;color:#BBA888;">Age : {age:.1f} ans | Capital : {C:,.0f} EUR</div>', unsafe_allow_html=True)
@@ -2107,6 +2122,7 @@ button:hover, .stButton>button:hover {
         ])
         st.markdown("---")
         st.caption("v4.3 - Mars 2026")
+    page = page if "page" in dir() and page else page_mobile
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
         "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
