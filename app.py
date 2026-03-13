@@ -443,7 +443,7 @@ def page_dashboard(profil, cap):
 
         # Capital reel cumule depuis les jalons
         import sqlite3 as sq
-        db_j = sq.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+        db_j = db_wrapper.connect()
         db_j.row_factory = sq.Row
         c_j = db_j.cursor()
         c_j.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
@@ -1047,7 +1047,7 @@ def page_lmnp(profil, cap):
     st.divider()
     st.subheader("SUIVI DEVIS ARTISANS - Budget 33 000 EUR")
     import sqlite3 as sqd
-    dbd = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+    dbd = db_wrapper.connect()
     dbd.row_factory = sqd.Row
     cd = dbd.cursor()
     cd.execute("SELECT * FROM devis_artisans ORDER BY id ASC")
@@ -1082,7 +1082,7 @@ def page_lmnp(profil, cap):
                 statut_d = st.selectbox("Statut", ["a_faire", "en_cours", "devis_recu", "signe", "paye"], index=["a_faire", "en_cours", "devis_recu", "signe", "paye"].index(d['statut']) if d['statut'] in ["a_faire", "en_cours", "devis_recu", "signe", "paye"] else 0, key=f"st_{d['id']}")
             paye_d = st.number_input("Montant paye (EUR)", value=float(d['paye_montant']), key=f"pay_{d['id']}")
             if st.button("Enregistrer", key=f"sav_{d['id']}"):
-                db4 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db4 = db_wrapper.connect()
                 db4.execute("UPDATE devis_artisans SET artisan=?, devis_montant=?, statut=?, paye_montant=? WHERE id=?",
                            (artisan, montant_d, statut_d, paye_d, d['id']))
                 db4.commit()
@@ -1098,7 +1098,7 @@ def page_lmnp(profil, cap):
             new_note = st.text_input("Note", key="new_note_corps")
         if st.button("Ajouter", key="add_corps"):
             if new_corps:
-                db5 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db5 = db_wrapper.connect()
                 db5.execute("INSERT INTO devis_artisans (corps_metier, note) VALUES (?,?)", (new_corps, new_note))
                 db5.commit()
                 db5.close()
@@ -1136,7 +1136,7 @@ def page_jalons(profil, cap):
         deja_fait = st.checkbox("Deja encaisse/paye", value=True)
         if st.button("Ajouter ce flux"):
             if nom_flux:
-                db3 = sq2.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db3 = db_wrapper.connect()
                 age_val = 50.5
                 fait_val = 1 if deja_fait else 0
                 mr_val = montant_flux if deja_fait else 0
