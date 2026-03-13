@@ -4,43 +4,7 @@ Sprint 1+2 : Dashboard corrigé + Suivi AV + Impôts + Surplus automatique
 """
 
 import streamlit as st
-import html
-
-if not hasattr(st, "_original_markdown"):
-    st._original_markdown = st.markdown
-    def patched_markdown(body, unsafe_allow_html=False, **kwargs):
-        if isinstance(body, str):
-            import html as _html
-            body = _html.unescape(body)
-        return st._original_markdown(body, unsafe_allow_html=unsafe_allow_html, **kwargs)
-    st.markdown = patched_markdown
-
-if "sidebar_state" not in st.session_state:
-    st.session_state.sidebar_state = "collapsed"
-
-COMMON_BTN_CSS = "position:fixed!important;top:1rem!important;left:1rem!important;width:2.5rem!important;height:2.5rem!important;background-color:#1a0a12!important;border:2px solid #FFD060!important;color:#FFD060!important;padding:0!important;z-index:999999!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:0.5rem!important;font-size:1.2rem!important;font-weight:bold!important;line-height:1!important;"
-
-if st.session_state.sidebar_state == "collapsed":
-    st.markdown(f'''<style>
-    header[data-testid="stHeader"]{{display:none!important;}}
-    section[data-testid="stSidebar"]{{display:none!important;}}
-    div[data-testid="stMainBlockContainer"]>div:first-child div[data-testid="stButton"] button{{{COMMON_BTN_CSS}}}
-    </style>''', unsafe_allow_html=True)
-    if st.button("❯", key="btn_open"):
-        st.session_state.sidebar_state = "expanded"
-        st.rerun()
-else:
-    st.markdown(f'''<style>
-    header[data-testid="stHeader"]{{display:none!important;}}
-    section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;}} section[data-testid="stSidebarUserContent"]{{padding-top:4rem!important;}}
-    @media(max-width:768px){{section[data-testid="stSidebar"]{{position:fixed!important;width:100vw!important;min-width:100vw!important;z-index:999998!important;}}}}
-    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{COMMON_BTN_CSS}}}
-    </style>''', unsafe_allow_html=True)
-    with st.sidebar:
-        if st.button("❮", key="btn_close"):
-            st.session_state.sidebar_state = "collapsed"
-            st.rerun()
-
+import sqlite3
 import db_wrapper
 import math
 from datetime import date, datetime
@@ -442,7 +406,9 @@ def page_dashboard(profil, cap):
         titre("COCKPIT PATRIMONIAL - PHASE CONSTRUCTION")
 
         # Capital reel cumule depuis les jalons
-        db_j = db_wrapper.connect()
+        import sqlite3 as sq
+        db_j = sq.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+        db_j.row_factory = sq.Row
         c_j = db_j.cursor()
         c_j.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
         rows_j = [dict(r) for r in c_j.fetchall()]
@@ -1044,7 +1010,9 @@ def page_lmnp(profil, cap):
     # SUIVI DEVIS ARTISANS
     st.divider()
     st.subheader("SUIVI DEVIS ARTISANS - Budget 33 000 EUR")
-    dbd = db_wrapper.connect()
+    import sqlite3 as sqd
+    dbd = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+    dbd.row_factory = sqd.Row
     cd = dbd.cursor()
     cd.execute("SELECT * FROM devis_artisans ORDER BY id ASC")
     devis = [dict(r) for r in cd.fetchall()]
@@ -1078,7 +1046,7 @@ def page_lmnp(profil, cap):
                 statut_d = st.selectbox("Statut", ["a_faire", "en_cours", "devis_recu", "signe", "paye"], index=["a_faire", "en_cours", "devis_recu", "signe", "paye"].index(d['statut']) if d['statut'] in ["a_faire", "en_cours", "devis_recu", "signe", "paye"] else 0, key=f"st_{d['id']}")
             paye_d = st.number_input("Montant paye (EUR)", value=float(d['paye_montant']), key=f"pay_{d['id']}")
             if st.button("Enregistrer", key=f"sav_{d['id']}"):
-                db4 = db_wrapper.connect()
+                db4 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 db4.execute("UPDATE devis_artisans SET artisan=?, devis_montant=?, statut=?, paye_montant=? WHERE id=?",
                            (artisan, montant_d, statut_d, paye_d, d['id']))
                 db4.commit()
@@ -1132,7 +1100,7 @@ def page_jalons(profil, cap):
         deja_fait = st.checkbox("Deja encaisse/paye", value=True)
         if st.button("Ajouter ce flux"):
             if nom_flux:
-                db3 = db_wrapper.connect()
+                db3 = sq2.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 age_val = 50.5
                 fait_val = 1 if deja_fait else 0
                 mr_val = montant_flux if deja_fait else 0
@@ -1148,7 +1116,7 @@ def page_jalons(profil, cap):
             else:
                 st.error("Donnez un nom au flux")
 
-    db = db_wrapper.connect()
+    db = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
     db.row_factory = db_wrapper.Row
     c = db.cursor()
     c.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
@@ -1182,13 +1150,13 @@ def page_jalons(profil, cap):
                     c1, c2 = st.columns(2)
                     with c1:
                         if st.button("Confirmer", key=f"c1m_{r['id']}"):
-                            db2 = db_wrapper.connect()
+                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                             db2.execute("UPDATE chronologie SET confirme_1mois=1, date_confirme_1mois=? WHERE id=?", (str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
                     with c2:
                         nv = st.number_input("Corriger montant", value=float(r.get('montant_reel', 0) or r['montant']), key=f"corr1_{r['id']}")
                         if st.button("Corriger", key=f"fix1_{r['id']}"):
-                            db2 = db_wrapper.connect()
+                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                             db2.execute("UPDATE chronologie SET montant_reel=? WHERE id=?", (nv, r['id']))
                             db2.commit(); db2.close(); st.rerun()
                 if jours >= 180 and r.get('confirme_6mois', 0) == 0:
@@ -1196,13 +1164,13 @@ def page_jalons(profil, cap):
                     c1, c2 = st.columns(2)
                     with c1:
                         if st.button("Verrouiller", key=f"c6m_{r['id']}"):
-                            db2 = db_wrapper.connect()
+                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                             db2.execute("UPDATE chronologie SET confirme_6mois=1, date_confirme_6mois=? WHERE id=?", (str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
                     with c2:
                         nv6 = st.number_input("Derniere correction", value=float(r.get('montant_reel', 0) or r['montant']), key=f"corr6_{r['id']}")
                         if st.button("Corriger et verrouiller", key=f"fix6_{r['id']}"):
-                            db2 = db_wrapper.connect()
+                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                             db2.execute("UPDATE chronologie SET montant_reel=?, confirme_6mois=1, date_confirme_6mois=? WHERE id=?", (nv6, str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
             except:
@@ -1237,7 +1205,7 @@ def page_jalons(profil, cap):
                 pass
             elif r['sens'] == 'info':
                 if st.button("MARQUER FAIT", key=f"fait_{r['id']}"):
-                    db2 = db_wrapper.connect()
+                    db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                     db2.execute("UPDATE chronologie SET fait=1, date_reelle=? WHERE id=?", (str(today), r['id']))
                     db2.commit(); db2.close(); st.rerun()
 
@@ -1256,7 +1224,7 @@ def page_jalons(profil, cap):
                     else:
                         st.warning(f"Ecart: {ecart:+,.0f} EUR ({pct:+.1f}%)")
                 if st.button("Valider", key=f"val_{r['id']}"):
-                    db2 = db_wrapper.connect()
+                    db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                     db2.execute("UPDATE chronologie SET fait=1, montant_reel=?, date_reelle=? WHERE id=?", (montant_r, str(date_r), r['id']))
                     db2.commit(); db2.close(); st.rerun()
         st.divider()
@@ -1278,7 +1246,7 @@ def page_jalons(profil, cap):
             with col_a:
                 if not verrouille:
                     if st.button("ANNULER", key=f"undo_{r['id']}"):
-                        db_u = db_wrapper.connect()
+                        db_u = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                         db_u.execute("UPDATE chronologie SET fait=0, montant_reel=0, date_reelle='' WHERE id=?", (r['id'],))
                         db_u.commit()
                         db_u.close()
@@ -1436,7 +1404,7 @@ def page_caf_pch(profil, cap):
     st.subheader("AAH / CAF / PCH (Allocations)")
 
     # Lire AAH suivi
-    db = db_wrapper.connect()
+    db = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
     db.row_factory = db_wrapper.Row
     c = db.cursor()
     c.execute("SELECT * FROM aah_suivi ORDER BY mois ASC")
@@ -1469,7 +1437,7 @@ def page_caf_pch(profil, cap):
         st.write("**Saisir le montant AAH reel pour cette annee :**")
         nouveau = st.number_input("Montant AAH mensuel reel (EUR)", value=float(reel if reel > 0 else prevu), key="aah_saisie")
         if st.button("Enregistrer AAH " + annee):
-            db2 = db_wrapper.connect()
+            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
             db2.execute("UPDATE aah_suivi SET montant_reel=?, date_saisie=? WHERE mois=?", (nouveau, str(today), annee))
             db2.commit()
             db2.close()
@@ -1730,7 +1698,7 @@ def page_parametres(profil, cap):
         elif st.session_state.confirm_step == 1:
             st.error("ATTENTION : ces parametres impactent TOUS les calculs du cockpit.")
             if st.button("Etape 2 : JE CONFIRME la modification"):
-                db = db_wrapper.connect()
+                db = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 db.execute("""UPDATE profil SET
                     rail_mensuel=?, aah_mensuel=?, loyer_net=?,
                     rendement_annuel=?, age_cible=?, capital_cible=?,
@@ -1750,7 +1718,7 @@ def page_parametres(profil, cap):
 
     st.divider()
     st.subheader("Poches de capital")
-    db2 = db_wrapper.connect()
+    db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
     db2.row_factory = db_wrapper.Row
     c2 = db2.cursor()
     c2.execute("SELECT * FROM capital ORDER BY date DESC LIMIT 1")
@@ -1783,7 +1751,7 @@ def page_parametres(profil, cap):
         elif st.session_state.cap_confirm == 1:
             st.error("ATTENTION : ceci modifie la base de tout le plan patrimonial.")
             if st.button("Etape 2 : JE CONFIRME le nouveau capital"):
-                db3 = db_wrapper.connect()
+                db3 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 from datetime import date
                 db3.execute("""INSERT INTO capital
                     (date, cc, livret_a, ldds, lep, av1, av2, av3,
@@ -1802,7 +1770,7 @@ def page_parametres(profil, cap):
     st.divider()
     st.subheader("Backup et restauration")
     import os
-    backup_dir = os.path.join(os.path.dirname(__file__), 'backups')
+    backup_dir = 'C:/Users/BoulePiou/cockpit-raphael/backups'
     if os.path.exists(backup_dir):
         backups = sorted(os.listdir(backup_dir), reverse=True)
         st.write(f"**{len(backups)} backups disponibles**")
@@ -1813,7 +1781,7 @@ def page_parametres(profil, cap):
         from datetime import datetime
         os.makedirs(backup_dir, exist_ok=True)
         bp = os.path.join(backup_dir, f'cockpit_manual_{datetime.now().strftime("%Y%m%d_%H%M%S")}.db')
-        pass
+        shutil.copy2('C:/Users/BoulePiou/cockpit-raphael/cockpit.db', bp)
         st.success(f"Backup cree")
 
     st.divider()
@@ -1824,7 +1792,7 @@ def page_parametres(profil, cap):
             choix = st.selectbox("Choisir un backup", backups_list, key="restore_bk")
             if st.button("Restaurer ce backup"):
                 import shutil
-                pass
+                shutil.copy2(os.path.join(backup_dir, choix), 'C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 st.success(f"Backup restaure. Rechargez la page.")
                 st.rerun()
 
@@ -2101,75 +2069,7 @@ button:hover, .stButton>button:hover {
     if not profil or not cap:
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
-
-    # === SIDEBAR TOGGLE (Gemini) ===
-    if "sidebar_state" not in st.session_state:
-        st.session_state.sidebar_state = "expanded"
-    if st.session_state.sidebar_state == "collapsed":
-        st.markdown("""<style>
-            section[data-testid="stSidebar"] { display: none !important; }
-            div[data-testid="stMainBlockContainer"] > div:first-child div[data-testid="stButton"] button {
-                position: fixed !important; top: 0.8rem !important; left: 1rem !important;
-                width: 2.5rem !important; height: 2.5rem !important;
-                background-color: #1a0a12 !important; border: 1.5px solid #FFD060 !important;
-                color: #FFD060 !important; padding: 0 !important; z-index: 999999 !important;
-                display: flex !important; align-items: center !important; justify-content: center !important;
-                border-radius: 0.4rem !important; font-size: 1rem !important;
-                width: 2.5rem !important; height: 2.5rem !important;
-                top: 1rem !important; left: 1rem !important;
-            }
-            div[data-testid="stMainBlockContainer"] > div:first-child div[data-testid="stButton"] button:hover {
-                background-color: #2A0A12 !important; box-shadow: 0 0 8px rgba(255,208,96,0.4) !important;
-            }
-        </style>""", unsafe_allow_html=True)
-        if st.button("\u276F"):
-            st.session_state.sidebar_state = "expanded"
-            st.rerun()
-    else:
-        st.markdown("""<style>
-            section[data-testid="stSidebar"] {
-                display: block !important; visibility: visible !important;
-                transform: translateX(0) !important; width: 300px !important; min-width: 300px !important;
-            }
-    /* Cacher le chevron natif non fonctionnel */
-    button[data-testid="stBaseButton-headerNoPadding"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarCollapseButton"] {
-        display: none !important;
-    }
-
-        </style>""", unsafe_allow_html=True)
-
     with st.sidebar:
-        st.markdown("""<style>
-            section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] > div:first-child div[data-testid="stButton"] button {
-                position: fixed !important;
-                top: 1rem !important;
-                left: 1rem !important;
-                width: 2.5rem !important;
-                height: 2.5rem !important;
-                background-color: #1a0a12 !important;
-                border: 2px solid #FFD060 !important;
-                color: #FFD060 !important;
-                padding: 0 !important;
-                z-index: 999999 !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                border-radius: 0.5rem !important;
-                font-size: 1.2rem !important;
-                font-weight: bold !important;
-                line-height: 1 !important;
-            }
-            section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] > div:first-child div[data-testid="stButton"] button:hover {
-                background-color: #FFD060 !important;
-                color: #1a0a12 !important;
-            }
-        </style>""", unsafe_allow_html=True)
-        if st.button("\u276E", key="close_sb"):
-            st.session_state.sidebar_state = "collapsed"
-            st.rerun()
         st.markdown("## Cockpit Raphael")
         st.markdown(f"**Age :** {age:.1f} ans")
         st.markdown('<div style="background:#0A2010;border:1px solid #1A6B4B;border-radius:6px;padding:8px 12px;margin:4px 0;text-align:center;"><span style="color:#4DFF99;font-size:11px;font-weight:700;letter-spacing:1px;">PLAN OPERATIONNEL</span><br><span style="color:#BBA888;font-size:10px;">Garanti jusqu&#39;a 92 ans</span></div>', unsafe_allow_html=True)
