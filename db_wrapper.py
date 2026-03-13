@@ -31,12 +31,25 @@ class DictRow(dict):
         return super().keys()
 
 class CursorWrapper:
+    def executescript(self, sql):
+        # PostgreSQL n a pas executescript - on execute chaque statement
+        statements = [s.strip() for s in sql.split(";") if s.strip()]
+        for stmt in statements:
+            try:
+                self._cursor.execute(stmt)
+            except Exception as e:
+                self._cursor.connection.rollback()
+        return self
     def __init__(self, cursor):
         self._cursor = cursor
 
     @property
     def description(self):
         return self._cursor.description
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
 
     @property
     def lastrowid(self):
@@ -49,6 +62,10 @@ class CursorWrapper:
     @property
     def description(self):
         return self._cursor.description
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
 
     @property
     def lastrowid(self):
@@ -60,6 +77,9 @@ class CursorWrapper:
 
     def execute(self, sql, params=None):
         # Ignorer les PRAGMA (SQLite only)
+        if sql.strip() == '':
+            self._results = []
+            return self
         if 'PRAGMA' in sql:
             self._results = []
             return self
@@ -67,6 +87,11 @@ class CursorWrapper:
         sql = sql.replace('?', '%s')
         # Remplacer INSERT OR IGNORE
         sql = sql.replace('INSERT OR IGNORE', 'INSERT')
+        sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+        sql = sql.replace('AUTOINCREMENT', '')
+        sql = sql.replace('autoincrement', '')
+        if 'CREATE TABLE' in sql:
+            sql = sql.replace('INTEGER PRIMARY KEY', 'SERIAL PRIMARY KEY')
         # Remplacer CURRENT_DATE (compatible)
         # Remplacer INTEGER PRIMARY KEY AUTOINCREMENT
         sql = sql.replace('AUTOINCREMENT', '')
@@ -116,7 +141,14 @@ class ConnectionWrapper:
         return c
 
     def commit(self):
-        self._conn.commit()
+        try:
+            self._conn.commit()
+        except:
+            try:
+                self._conn.rollback()
+                self._conn.commit()
+            except:
+                pass
 
     def rollback(self):
         self._conn.rollback()
