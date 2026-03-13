@@ -5,44 +5,8 @@ Sprint 1+2 : Dashboard corrigé + Suivi AV + Impôts + Surplus automatique
 
 import streamlit as st
 import sqlite3
-"""
-COCKPIT PATRIMONIAL — RAPHAËL
-Sprint 1+2 : Dashboard corrigé + Suivi AV + Impôts + Surplus automatique
-"""
-
-import streamlit as st
-import html
-
-if not hasattr(st, "_original_markdown"):
-    st._original_markdown = st.markdown
-    def patched_markdown(body, unsafe_allow_html=False, **kwargs):
-        if isinstance(body, str):
-            body = html.unescape(body)
-        return st._original_markdown(body, unsafe_allow_html=unsafe_allow_html, **kwargs)
-    st.markdown = patched_markdown
-
-if "sidebar_state" not in st.session_state:
-    st.session_state.sidebar_state = "collapsed"
-
-if st.session_state.get("connected", False):
-    COMMON_BTN_CSS = "position:fixed!important;top:1rem!important;left:1rem!important;width:2.5rem!important;height:2.5rem!important;background-color:#1a0a12!important;border:2px solid #FFD060!important;color:#FFD060!important;padding:0!important;z-index:999999!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:0.5rem!important;font-size:1.2rem!important;font-weight:bold!important;line-height:1!important;"
-    if st.session_state.sidebar_state == "collapsed":
-        st.markdown(f'<style>header[data-testid="stHeader"]{{display:none!important;}}section[data-testid="stSidebar"]{{display:none!important;}}div[data-testid="stMainBlockContainer"]>div:first-child div[data-testid="stButton"] button{{{COMMON_BTN_CSS}}}</style>', unsafe_allow_html=True)
-        if st.button("❯", key="btn_open"):
-            st.session_state.sidebar_state = "expanded"
-            st.rerun()
-    else:
-        st.markdown(f'<style>header[data-testid="stHeader"]{{display:none!important;}}section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;}}section[data-testid="stSidebarUserContent"]{{padding-top:4rem!important;}}@media(max-width:768px){{section[data-testid="stSidebar"]{{position:fixed!important;width:100vw!important;min-width:100vw!important;z-index:999998!important;}}}}section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{COMMON_BTN_CSS}}}</style>', unsafe_allow_html=True)
-        with st.sidebar:
-            if st.button("❮", key="btn_close"):
-                st.session_state.sidebar_state = "collapsed"
-                st.rerun()
-else:
-    st.markdown('<style>header[data-testid="stHeader"]{display:none!important;}section[data-testid="stSidebar"]{display:none!important;}</style>', unsafe_allow_html=True)
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import db_wrapper
+import math
 from datetime import date, datetime
 from pathlib import Path
 
@@ -443,7 +407,7 @@ def page_dashboard(profil, cap):
 
         # Capital reel cumule depuis les jalons
         import sqlite3 as sq
-        db_j = db_wrapper.connect()
+        db_j = sq.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
         db_j.row_factory = sq.Row
         c_j = db_j.cursor()
         c_j.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
@@ -1047,7 +1011,7 @@ def page_lmnp(profil, cap):
     st.divider()
     st.subheader("SUIVI DEVIS ARTISANS - Budget 33 000 EUR")
     import sqlite3 as sqd
-    dbd = db_wrapper.connect()
+    dbd = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
     dbd.row_factory = sqd.Row
     cd = dbd.cursor()
     cd.execute("SELECT * FROM devis_artisans ORDER BY id ASC")
@@ -1082,7 +1046,7 @@ def page_lmnp(profil, cap):
                 statut_d = st.selectbox("Statut", ["a_faire", "en_cours", "devis_recu", "signe", "paye"], index=["a_faire", "en_cours", "devis_recu", "signe", "paye"].index(d['statut']) if d['statut'] in ["a_faire", "en_cours", "devis_recu", "signe", "paye"] else 0, key=f"st_{d['id']}")
             paye_d = st.number_input("Montant paye (EUR)", value=float(d['paye_montant']), key=f"pay_{d['id']}")
             if st.button("Enregistrer", key=f"sav_{d['id']}"):
-                db4 = db_wrapper.connect()
+                db4 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 db4.execute("UPDATE devis_artisans SET artisan=?, devis_montant=?, statut=?, paye_montant=? WHERE id=?",
                            (artisan, montant_d, statut_d, paye_d, d['id']))
                 db4.commit()
@@ -1098,7 +1062,7 @@ def page_lmnp(profil, cap):
             new_note = st.text_input("Note", key="new_note_corps")
         if st.button("Ajouter", key="add_corps"):
             if new_corps:
-                db5 = db_wrapper.connect()
+                db5 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 db5.execute("INSERT INTO devis_artisans (corps_metier, note) VALUES (?,?)", (new_corps, new_note))
                 db5.commit()
                 db5.close()
@@ -1136,7 +1100,7 @@ def page_jalons(profil, cap):
         deja_fait = st.checkbox("Deja encaisse/paye", value=True)
         if st.button("Ajouter ce flux"):
             if nom_flux:
-                db3 = db_wrapper.connect()
+                db3 = sq2.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
                 age_val = 50.5
                 fait_val = 1 if deja_fait else 0
                 mr_val = montant_flux if deja_fait else 0
