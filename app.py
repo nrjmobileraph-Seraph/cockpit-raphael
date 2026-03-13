@@ -153,7 +153,7 @@ def init_db():
     except:
         pass
 def get_profil():
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     row = c.execute("SELECT * FROM profil WHERE id=1").fetchone()
     cols = [d[0] for d in c.description]
@@ -161,7 +161,7 @@ def get_profil():
     return dict(zip(cols, row)) if row else {}
 
 def get_capital():
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     row = c.execute("SELECT * FROM capital ORDER BY id DESC LIMIT 1").fetchone()
     cols = [d[0] for d in c.description]
@@ -169,7 +169,7 @@ def get_capital():
     return dict(zip(cols, row)) if row else {}
 
 def save_capital(d):
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("""INSERT INTO capital
         (date,cc,livret_a,ldds,lep,av1,av2,av3,
@@ -187,7 +187,7 @@ def save_capital(d):
     conn.close()
 
 def save_profil(d):
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("""UPDATE profil SET aah_mensuel=?,pch_mensuel=?,loyer_net=?,
         taux_mdph=?,rendement_annuel=?,rail_mensuel=?,updated=CURRENT_TIMESTAMP
@@ -197,7 +197,7 @@ def save_profil(d):
     conn.close()
 
 def save_surplus(montant, destination, note):
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("INSERT INTO surplus_affectation (montant,destination,note) VALUES (?,?,?)",
               (montant, destination, note))
@@ -205,7 +205,7 @@ def save_surplus(montant, destination, note):
     conn.close()
 
 def get_historique_surplus():
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     rows = c.execute("SELECT date,montant,destination,note FROM surplus_affectation ORDER BY id DESC LIMIT 10").fetchall()
     conn.close()
@@ -407,8 +407,8 @@ def page_dashboard(profil, cap):
 
         # Capital reel cumule depuis les jalons
         import db_wrapper as sq
-        db_j = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
-        db_j.row_factory = db_wrapper.Row
+        db_j = db_wrapper.connect()
+        # row_factory geree par db_wrapper
         c_j = db_j.cursor()
         c_j.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
         rows_j = [dict(r) for r in c_j.fetchall()]
@@ -873,7 +873,7 @@ def page_saisie(profil, cap):
 # ─── HELPERS DB LMNP ─────────────────────────────────────────────────────────
 def get_lmnp():
     import sqlite3
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     row = c.execute("SELECT * FROM lmnp WHERE id=1").fetchone()
     cols = [d[0] for d in c.description]
@@ -882,7 +882,7 @@ def get_lmnp():
 
 def save_lmnp(d):
     import sqlite3
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("""UPDATE lmnp SET date_acquisition=?,valeur_acquisition=?,valeur_terrain=?,
         travaux=?,loyer_brut_mensuel=?,charges_annuelles=?,
@@ -1116,7 +1116,7 @@ def page_jalons(profil, cap):
             else:
                 st.error("Donnez un nom au flux")
 
-    db = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+    db = db_wrapper.connect()
     db.row_factory = db_wrapper.Row
     c = db.cursor()
     c.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
@@ -1150,13 +1150,13 @@ def page_jalons(profil, cap):
                     c1, c2 = st.columns(2)
                     with c1:
                         if st.button("Confirmer", key=f"c1m_{r['id']}"):
-                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                            db2 = db_wrapper.connect()
                             db2.execute("UPDATE chronologie SET confirme_1mois=1, date_confirme_1mois=? WHERE id=?", (str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
                     with c2:
                         nv = st.number_input("Corriger montant", value=float(r.get('montant_reel', 0) or r['montant']), key=f"corr1_{r['id']}")
                         if st.button("Corriger", key=f"fix1_{r['id']}"):
-                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                            db2 = db_wrapper.connect()
                             db2.execute("UPDATE chronologie SET montant_reel=? WHERE id=?", (nv, r['id']))
                             db2.commit(); db2.close(); st.rerun()
                 if jours >= 180 and r.get('confirme_6mois', 0) == 0:
@@ -1164,13 +1164,13 @@ def page_jalons(profil, cap):
                     c1, c2 = st.columns(2)
                     with c1:
                         if st.button("Verrouiller", key=f"c6m_{r['id']}"):
-                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                            db2 = db_wrapper.connect()
                             db2.execute("UPDATE chronologie SET confirme_6mois=1, date_confirme_6mois=? WHERE id=?", (str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
                     with c2:
                         nv6 = st.number_input("Derniere correction", value=float(r.get('montant_reel', 0) or r['montant']), key=f"corr6_{r['id']}")
                         if st.button("Corriger et verrouiller", key=f"fix6_{r['id']}"):
-                            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                            db2 = db_wrapper.connect()
                             db2.execute("UPDATE chronologie SET montant_reel=?, confirme_6mois=1, date_confirme_6mois=? WHERE id=?", (nv6, str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
             except:
@@ -1205,7 +1205,7 @@ def page_jalons(profil, cap):
                 pass
             elif r['sens'] == 'info':
                 if st.button("MARQUER FAIT", key=f"fait_{r['id']}"):
-                    db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                    db2 = db_wrapper.connect()
                     db2.execute("UPDATE chronologie SET fait=1, date_reelle=? WHERE id=?", (str(today), r['id']))
                     db2.commit(); db2.close(); st.rerun()
 
@@ -1224,7 +1224,7 @@ def page_jalons(profil, cap):
                     else:
                         st.warning(f"Ecart: {ecart:+,.0f} EUR ({pct:+.1f}%)")
                 if st.button("Valider", key=f"val_{r['id']}"):
-                    db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                    db2 = db_wrapper.connect()
                     db2.execute("UPDATE chronologie SET fait=1, montant_reel=?, date_reelle=? WHERE id=?", (montant_r, str(date_r), r['id']))
                     db2.commit(); db2.close(); st.rerun()
         st.divider()
@@ -1246,7 +1246,7 @@ def page_jalons(profil, cap):
             with col_a:
                 if not verrouille:
                     if st.button("ANNULER", key=f"undo_{r['id']}"):
-                        db_u = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                        db_u = db_wrapper.connect()
                         db_u.execute("UPDATE chronologie SET fait=0, montant_reel=0, date_reelle='' WHERE id=?", (r['id'],))
                         db_u.commit()
                         db_u.close()
@@ -1259,7 +1259,7 @@ def page_jalons_old(profil, cap):
     from datetime import datetime, date
     titre("CHRONOLOGIE COMPLETE - PILOTAGE AUTOMATIQUE")
     age = age_actuel(profil)
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     try:
         rows = c.execute("SELECT date_cible,age_cible,action,montant,sens,categorie,auto,fait,note FROM chronologie ORDER BY date_cible").fetchall()
@@ -1404,7 +1404,7 @@ def page_caf_pch(profil, cap):
     st.subheader("AAH / CAF / PCH (Allocations)")
 
     # Lire AAH suivi
-    db = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+    db = db_wrapper.connect()
     db.row_factory = db_wrapper.Row
     c = db.cursor()
     c.execute("SELECT * FROM aah_suivi ORDER BY mois ASC")
@@ -1437,7 +1437,7 @@ def page_caf_pch(profil, cap):
         st.write("**Saisir le montant AAH reel pour cette annee :**")
         nouveau = st.number_input("Montant AAH mensuel reel (EUR)", value=float(reel if reel > 0 else prevu), key="aah_saisie")
         if st.button("Enregistrer AAH " + annee):
-            db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+            db2 = db_wrapper.connect()
             db2.execute("UPDATE aah_suivi SET montant_reel=?, date_saisie=? WHERE mois=?", (nouveau, str(today), annee))
             db2.commit()
             db2.close()
@@ -1698,7 +1698,7 @@ def page_parametres(profil, cap):
         elif st.session_state.confirm_step == 1:
             st.error("ATTENTION : ces parametres impactent TOUS les calculs du cockpit.")
             if st.button("Etape 2 : JE CONFIRME la modification"):
-                db = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db = db_wrapper.connect()
                 db.execute("""UPDATE profil SET
                     rail_mensuel=?, aah_mensuel=?, loyer_net=?,
                     rendement_annuel=?, age_cible=?, capital_cible=?,
@@ -1718,7 +1718,7 @@ def page_parametres(profil, cap):
 
     st.divider()
     st.subheader("Poches de capital")
-    db2 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+    db2 = db_wrapper.connect()
     db2.row_factory = db_wrapper.Row
     c2 = db2.cursor()
     c2.execute("SELECT * FROM capital ORDER BY date DESC LIMIT 1")
@@ -1751,7 +1751,7 @@ def page_parametres(profil, cap):
         elif st.session_state.cap_confirm == 1:
             st.error("ATTENTION : ceci modifie la base de tout le plan patrimonial.")
             if st.button("Etape 2 : JE CONFIRME le nouveau capital"):
-                db3 = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db3 = db_wrapper.connect()
                 from datetime import date
                 db3.execute("""INSERT INTO capital
                     (date, cc, livret_a, ldds, lep, av1, av2, av3,
@@ -1855,7 +1855,7 @@ def page_boursobank(profil, cap):
     import sqlite3, urllib.parse
     titre("BoursoBank - Connexion Tink")
     st.info("Ce module permet de connecter ton compte BoursoBank via Tink (DSP2).")
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS tink_config (id INTEGER PRIMARY KEY, client_id TEXT DEFAULT '', client_secret TEXT DEFAULT '', updated TEXT DEFAULT CURRENT_TIMESTAMP)")
     if not c.execute("SELECT id FROM tink_config").fetchone():
@@ -1868,7 +1868,7 @@ def page_boursobank(profil, cap):
     cid = st.text_input("Client ID Tink", value=old_cid)
     cs = st.text_input("Client Secret Tink", value=old_cs, type="password")
     if st.button("Enregistrer les cles"):
-        conn = db_wrapper.connect(DB_PATH)
+        conn = db_wrapper.connect()
         conn.execute("UPDATE tink_config SET client_id=?, client_secret=?, updated=CURRENT_TIMESTAMP WHERE id=1", (cid, cs))
         conn.commit(); conn.close()
         st.success("Cles enregistrees !")
