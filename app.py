@@ -19,6 +19,21 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
+
+    /* Bouton > pour rouvrir le sidebar - GROS ET VISIBLE */
+    [data-testid="collapsedControl"] {
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        z-index: 9999 !important;
+        background: #1a0a12 !important;
+        border: 2px solid #FFD060 !important;
+        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        font-size: 28px !important;
+        color: #FFD060 !important;
+    }
+
 /* FORCE TOUS LES BOUTONS - BORDEAUX OR */
 .stButton button,
 .stButton > button,
