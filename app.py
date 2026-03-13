@@ -18,10 +18,29 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+if "sidebar_open" not in st.session_state:
+    st.session_state.sidebar_open = True
+if not st.session_state.sidebar_open:
+    st.markdown("""<style>
+        section[data-testid="stSidebar"] { display: none !important; }
+    </style>""", unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 20])
+    with col1:
+        if st.button("\u2630", key="open_sb"):
+            st.session_state.sidebar_open = True
+            st.rerun()
+else:
+    st.markdown("""<style>
+        section[data-testid="stSidebar"] {
+            transform: translateX(0px) !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+    </style>""", unsafe_allow_html=True)
+
 st.markdown("""<style>
 
     /* Bouton > pour rouvrir le sidebar - GROS ET VISIBLE */
-    [data-testid="collapsedControl"] {
         position: fixed !important;
         top: 10px !important;
         left: 10px !important;
@@ -2085,6 +2104,9 @@ button:hover, .stButton>button:hover {
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
     with st.sidebar:
+        if st.button("Fermer", key="close_sb", use_container_width=True):
+            st.session_state.sidebar_open = False
+            st.rerun()
         st.markdown("## Cockpit Raphael")
         st.markdown(f"**Age :** {age:.1f} ans")
         st.markdown('<div style="background:#0A2010;border:1px solid #1A6B4B;border-radius:6px;padding:8px 12px;margin:4px 0;text-align:center;"><span style="color:#4DFF99;font-size:11px;font-weight:700;letter-spacing:1px;">PLAN OPERATIONNEL</span><br><span style="color:#BBA888;font-size:10px;">Garanti jusqu&#39;a 92 ans</span></div>', unsafe_allow_html=True)
