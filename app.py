@@ -1010,9 +1010,7 @@ def page_lmnp(profil, cap):
     # SUIVI DEVIS ARTISANS
     st.divider()
     st.subheader("SUIVI DEVIS ARTISANS - Budget 33 000 EUR")
-    import sqlite3 as sqd
-    dbd = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
-    dbd.row_factory = sqd.Row
+    dbd = db_wrapper.connect()
     cd = dbd.cursor()
     cd.execute("SELECT * FROM devis_artisans ORDER BY id ASC")
     devis = [dict(r) for r in cd.fetchall()]
@@ -1046,7 +1044,7 @@ def page_lmnp(profil, cap):
                 statut_d = st.selectbox("Statut", ["a_faire", "en_cours", "devis_recu", "signe", "paye"], index=["a_faire", "en_cours", "devis_recu", "signe", "paye"].index(d['statut']) if d['statut'] in ["a_faire", "en_cours", "devis_recu", "signe", "paye"] else 0, key=f"st_{d['id']}")
             paye_d = st.number_input("Montant paye (EUR)", value=float(d['paye_montant']), key=f"pay_{d['id']}")
             if st.button("Enregistrer", key=f"sav_{d['id']}"):
-                db4 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db4 = db_wrapper.connect()
                 db4.execute("UPDATE devis_artisans SET artisan=?, devis_montant=?, statut=?, paye_montant=? WHERE id=?",
                            (artisan, montant_d, statut_d, paye_d, d['id']))
                 db4.commit()
