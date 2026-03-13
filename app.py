@@ -2119,12 +2119,6 @@ button:hover, .stButton>button:hover {
     </style>
     """, unsafe_allow_html=True)
 
-    # Menu mobile en haut
-    st.markdown('<div class="mobile-only">', unsafe_allow_html=True)
-    page_mobile = st.selectbox("Navigation", pages_list,
-        index=pages_list.index(st.session_state.page), key="mob_nav")
-    st.session_state.page = page_mobile
-    st.markdown('</div>', unsafe_allow_html=True)
 
     with st.sidebar:
         st.markdown('<div style="text-align:center;padding:10px;"><span style="color:#FFD060;font-size:20px;font-weight:bold;">COCKPIT RAPHAEL</span></div>', unsafe_allow_html=True)
