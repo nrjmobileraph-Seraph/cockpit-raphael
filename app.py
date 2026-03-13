@@ -406,9 +406,7 @@ def page_dashboard(profil, cap):
         titre("COCKPIT PATRIMONIAL - PHASE CONSTRUCTION")
 
         # Capital reel cumule depuis les jalons
-        import sqlite3 as sq
-        db_j = sq.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
-        db_j.row_factory = sq.Row
+        db_j = db_wrapper.connect()
         c_j = db_j.cursor()
         c_j.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
         rows_j = [dict(r) for r in c_j.fetchall()]
@@ -1098,7 +1096,7 @@ def page_jalons(profil, cap):
         deja_fait = st.checkbox("Deja encaisse/paye", value=True)
         if st.button("Ajouter ce flux"):
             if nom_flux:
-                db3 = sq2.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db3 = db_wrapper.connect()
                 age_val = 50.5
                 fait_val = 1 if deja_fait else 0
                 mr_val = montant_flux if deja_fait else 0
