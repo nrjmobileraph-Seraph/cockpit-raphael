@@ -32,7 +32,7 @@ if st.session_state.sidebar_state == "collapsed":
 else:
     st.markdown(f'''<style>
     header[data-testid="stHeader"]{{display:none!important;}}
-    section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;}}
+    section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;}} section[data-testid="stSidebarUserContent"]{{padding-top:4rem!important;}}
     @media(max-width:768px){{section[data-testid="stSidebar"]{{position:fixed!important;width:100vw!important;min-width:100vw!important;z-index:999998!important;}}}}
     section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{COMMON_BTN_CSS}}}
     </style>''', unsafe_allow_html=True)
