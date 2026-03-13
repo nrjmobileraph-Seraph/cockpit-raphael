@@ -2069,6 +2069,15 @@ button:hover, .stButton>button:hover {
     if not profil or not cap:
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
+    # Menu de secours en haut si sidebar invisible
+    page_top = st.selectbox("Menu", [
+        "Tableau de bord","Moteur ARVA (Rente)","Suivi AV x 3 contrats",
+        "Scenarios simulateurs","Fiscal & CAF","Declaration impots",
+        "LMNP (Location Meublee) & IRL","Jalons & Actions",
+        "AAH / CAF / PCH (Allocations)","Inflation","Succession",
+        "Mode Senior","Bilan d exportation","BoursoBank","Crypto",
+        "Annexe - Reference","Parametres","Saisie capital"],
+        key="menu_top")
     with st.sidebar:
         try:
             st.markdown("## Cockpit Raphael")
@@ -2112,6 +2121,7 @@ button:hover, .stButton>button:hover {
         ])
         st.markdown("---")
         st.caption("v4.3 - Mars 2026")
+    page = page if 'page' in dir() else page_top
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
         "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
