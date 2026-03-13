@@ -23,10 +23,23 @@ if "sidebar_open" not in st.session_state:
 if not st.session_state.sidebar_open:
     st.markdown("""<style>
         section[data-testid="stSidebar"] { display: none !important; }
+        div[data-testid="stButton"] button[kind="secondary"] {
+            background: #1a0a12 !important;
+            color: #FFD060 !important;
+            border: 2px solid #FFD060 !important;
+            border-radius: 10px !important;
+            font-size: 28px !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+        }
+        div[data-testid="stButton"] button[kind="secondary"]:hover {
+            background: #2A0A12 !important;
+            transform: scale(1.05) !important;
+        }
     </style>""", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 20])
     with col1:
-        if st.button("\u2630", key="open_sb"):
+        if st.button("MENU", key="open_sb"):
             st.session_state.sidebar_open = True
             st.rerun()
 else:
@@ -2106,7 +2119,16 @@ button:hover, .stButton>button:hover {
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
     with st.sidebar:
-        if st.button("Fermer", key="close_sb", use_container_width=True):
+        st.markdown("""<style>
+            div[data-testid="stSidebar"] button[kind="secondary"] {
+                background: #1a0a12 !important;
+                color: #FFD060 !important;
+                border: 2px solid #FFD060 !important;
+                border-radius: 8px !important;
+                font-weight: bold !important;
+            }
+        </style>""", unsafe_allow_html=True)
+        if st.button("FERMER LE MENU", key="close_sb", use_container_width=True):
             st.session_state.sidebar_open = False
             st.rerun()
         st.markdown("## Cockpit Raphael")
