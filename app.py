@@ -406,9 +406,9 @@ def page_dashboard(profil, cap):
         titre("COCKPIT PATRIMONIAL - PHASE CONSTRUCTION")
 
         # Capital reel cumule depuis les jalons
-        import sqlite3 as sq
-        db_j = sq.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
-        db_j.row_factory = sq.Row
+        import db_wrapper as sq
+        db_j = db_wrapper.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+        db_j.row_factory = db_wrapper.Row
         c_j = db_j.cursor()
         c_j.execute("SELECT * FROM chronologie ORDER BY date_cible ASC")
         rows_j = [dict(r) for r in c_j.fetchall()]
@@ -1010,7 +1010,7 @@ def page_lmnp(profil, cap):
     # SUIVI DEVIS ARTISANS
     st.divider()
     st.subheader("SUIVI DEVIS ARTISANS - Budget 33 000 EUR")
-    import sqlite3 as sqd
+    import db_wrapper as sqd
     dbd = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
     dbd.row_factory = sqd.Row
     cd = dbd.cursor()
@@ -1082,7 +1082,7 @@ def page_jalons(profil, cap):
 
     st.markdown('<div style="background:#2A1800;border:2px solid #D4A017;border-radius:8px;padding:16px 24px;margin-bottom:20px;text-align:center;"><span style="color:#FFD060;font-size:24px;font-weight:700;">AJOUTER UN FLUX IMPREVU</span></div>', unsafe_allow_html=True)
     with st.expander("Cliquer ici pour saisir"):
-        import sqlite3 as sq2
+        import db_wrapper as sq2
         from datetime import date as dt2
         col_n, col_s = st.columns(2)
         with col_n:
