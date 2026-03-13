@@ -21,6 +21,12 @@ st.markdown("""<style>
     [data-testid="stSidebar"] {display: block !important; width: 300px !important; min-width: 300px !important;}
     [data-testid="stSidebar"] > div {display: block !important; width: 300px !important;}
     [data-testid="collapsedControl"] {display: block !important;}
+    @media (max-width: 768px) {
+        [data-testid="stSidebar"] {width: 70vw !important; min-width: 200px !important; max-width: 280px !important; z-index: 999 !important;}
+        [data-testid="stSidebar"][aria-expanded="false"] {display: none !important; margin-left: -300px !important;}
+        .main .block-container {padding: 1rem 0.5rem !important;}
+        [data-testid="collapsedControl"] {display: block !important; position: fixed !important; top: 5px !important; left: 5px !important; z-index: 9999 !important; background: #1a0a12 !important; border: 2px solid #FFD060 !important; border-radius: 8px !important; padding: 8px 12px !important; font-size: 24px !important;}
+    }
     section[data-testid="stSidebar"] {display: block !important; opacity: 1 !important; width: 300px !important; transform: none !important;}
     section[data-testid="stSidebar"] {display: block !important; opacity: 1 !important; width: 300px !important; transform: none !important;}
 </style>""", unsafe_allow_html=True)
