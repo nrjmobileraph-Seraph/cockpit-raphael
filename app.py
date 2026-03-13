@@ -35,6 +35,8 @@ else:
             transform: translateX(0px) !important;
             visibility: visible !important;
             display: block !important;
+            width: 300px !important;
+            min-width: 300px !important;
         }
     </style>""", unsafe_allow_html=True)
 
