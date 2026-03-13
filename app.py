@@ -39,6 +39,9 @@ if st.session_state.get("connected", False):
                 st.rerun()
 else:
     st.markdown('<style>header[data-testid="stHeader"]{display:none!important;}section[data-testid="stSidebar"]{display:none!important;}</style>', unsafe_allow_html=True)
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import db_wrapper
 from datetime import date, datetime
 from pathlib import Path
