@@ -1011,8 +1011,8 @@ def page_lmnp(profil, cap):
     st.divider()
     st.subheader("SUIVI DEVIS ARTISANS - Budget 33 000 EUR")
     import db_wrapper as sqd
-    dbd = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
-    dbd.row_factory = sqd.Row
+    dbd = db_wrapper.connect()
+    dbd.row_factory = db_wrapper.Row
     cd = dbd.cursor()
     cd.execute("SELECT * FROM devis_artisans ORDER BY id ASC")
     devis = [dict(r) for r in cd.fetchall()]
@@ -1046,7 +1046,7 @@ def page_lmnp(profil, cap):
                 statut_d = st.selectbox("Statut", ["a_faire", "en_cours", "devis_recu", "signe", "paye"], index=["a_faire", "en_cours", "devis_recu", "signe", "paye"].index(d['statut']) if d['statut'] in ["a_faire", "en_cours", "devis_recu", "signe", "paye"] else 0, key=f"st_{d['id']}")
             paye_d = st.number_input("Montant paye (EUR)", value=float(d['paye_montant']), key=f"pay_{d['id']}")
             if st.button("Enregistrer", key=f"sav_{d['id']}"):
-                db4 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db4 = db_wrapper.connect()
                 db4.execute("UPDATE devis_artisans SET artisan=?, devis_montant=?, statut=?, paye_montant=? WHERE id=?",
                            (artisan, montant_d, statut_d, paye_d, d['id']))
                 db4.commit()
@@ -1062,7 +1062,7 @@ def page_lmnp(profil, cap):
             new_note = st.text_input("Note", key="new_note_corps")
         if st.button("Ajouter", key="add_corps"):
             if new_corps:
-                db5 = sqd.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db5 = db_wrapper.connect()
                 db5.execute("INSERT INTO devis_artisans (corps_metier, note) VALUES (?,?)", (new_corps, new_note))
                 db5.commit()
                 db5.close()
@@ -1100,7 +1100,7 @@ def page_jalons(profil, cap):
         deja_fait = st.checkbox("Deja encaisse/paye", value=True)
         if st.button("Ajouter ce flux"):
             if nom_flux:
-                db3 = sq2.connect('C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                db3 = db_wrapper.connect()
                 age_val = 50.5
                 fait_val = 1 if deja_fait else 0
                 mr_val = montant_flux if deja_fait else 0
@@ -1770,7 +1770,7 @@ def page_parametres(profil, cap):
     st.divider()
     st.subheader("Backup et restauration")
     import os
-    backup_dir = 'C:/Users/BoulePiou/cockpit-raphael/backups'
+    backup_dir = os.path.join(os.path.dirname(__file__), 'backups')
     if os.path.exists(backup_dir):
         backups = sorted(os.listdir(backup_dir), reverse=True)
         st.write(f"**{len(backups)} backups disponibles**")
@@ -1781,7 +1781,7 @@ def page_parametres(profil, cap):
         from datetime import datetime
         os.makedirs(backup_dir, exist_ok=True)
         bp = os.path.join(backup_dir, f'cockpit_manual_{datetime.now().strftime("%Y%m%d_%H%M%S")}.db')
-        shutil.copy2('C:/Users/BoulePiou/cockpit-raphael/cockpit.db', bp)
+        pass  # backup local desactive sur cloud
         st.success(f"Backup cree")
 
     st.divider()
@@ -1792,7 +1792,7 @@ def page_parametres(profil, cap):
             choix = st.selectbox("Choisir un backup", backups_list, key="restore_bk")
             if st.button("Restaurer ce backup"):
                 import shutil
-                shutil.copy2(os.path.join(backup_dir, choix), 'C:/Users/BoulePiou/cockpit-raphael/cockpit.db')
+                pass  # restore local desactive sur cloud
                 st.success(f"Backup restaure. Rechargez la page.")
                 st.rerun()
 
