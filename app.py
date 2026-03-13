@@ -2079,10 +2079,12 @@ button:hover, .stButton>button:hover {
             div[data-testid="stMainBlockContainer"] > div:first-child div[data-testid="stButton"] button {
                 position: fixed !important; top: 0.8rem !important; left: 1rem !important;
                 width: 2.5rem !important; height: 2.5rem !important;
-                background-color: #1a0a12 !important; border: 1px solid #FFD060 !important;
+                background-color: #1a0a12 !important; border: 1.5px solid #FFD060 !important;
                 color: #FFD060 !important; padding: 0 !important; z-index: 999999 !important;
                 display: flex !important; align-items: center !important; justify-content: center !important;
-                border-radius: 0.5rem !important; font-size: 1.2rem !important;
+                border-radius: 0.4rem !important; font-size: 1rem !important;
+                width: 2rem !important; height: 2rem !important;
+                top: 0.5rem !important; left: 0.5rem !important;
             }
             div[data-testid="stMainBlockContainer"] > div:first-child div[data-testid="stButton"] button:hover {
                 background-color: #2A0A12 !important; box-shadow: 0 0 8px rgba(255,208,96,0.4) !important;
@@ -2108,6 +2110,27 @@ button:hover, .stButton>button:hover {
         </style>""", unsafe_allow_html=True)
 
     with st.sidebar:
+        st.markdown("""<style>
+            section[data-testid="stSidebar"] div[data-testid="stButton"]:first-of-type button {
+                background-color: #1a0a12 !important;
+                border: 1.5px solid #FFD060 !important;
+                color: #FFD060 !important;
+                width: 2rem !important;
+                height: 2rem !important;
+                padding: 0 !important;
+                border-radius: 0.4rem !important;
+                font-size: 1rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                margin-top: 0.5rem !important;
+                margin-left: 0.3rem !important;
+            }
+            section[data-testid="stSidebar"] div[data-testid="stButton"]:first-of-type button:hover {
+                background-color: #2A0A12 !important;
+                box-shadow: 0 0 8px rgba(255,208,96,0.4) !important;
+            }
+        </style>""", unsafe_allow_html=True)
         if st.button("\u276E", key="close_sb"):
             st.session_state.sidebar_state = "collapsed"
             st.rerun()
