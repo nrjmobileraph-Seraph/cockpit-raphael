@@ -2111,24 +2111,28 @@ button:hover, .stButton>button:hover {
 
     with st.sidebar:
         st.markdown("""<style>
-            section[data-testid="stSidebar"] div[data-testid="stButton"]:first-of-type button {
-                background-color: #1a0a12 !important;
-                border: 1.5px solid #FFD060 !important;
-                color: #FFD060 !important;
+            section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] > div:first-child div[data-testid="stButton"] button {
+                position: fixed !important;
+                top: 1rem !important;
+                left: 1rem !important;
                 width: 2.5rem !important;
                 height: 2.5rem !important;
+                background-color: #1a0a12 !important;
+                border: 2px solid #FFD060 !important;
+                color: #FFD060 !important;
                 padding: 0 !important;
-                border-radius: 0.4rem !important;
-                font-size: 1rem !important;
+                z-index: 999999 !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                margin-top: 1rem !important;
-                margin-left: 1rem !important;
+                border-radius: 0.5rem !important;
+                font-size: 1.2rem !important;
+                font-weight: bold !important;
+                line-height: 1 !important;
             }
-            section[data-testid="stSidebar"] div[data-testid="stButton"]:first-of-type button:hover {
-                background-color: #2A0A12 !important;
-                box-shadow: 0 0 8px rgba(255,208,96,0.4) !important;
+            section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] > div:first-child div[data-testid="stButton"] button:hover {
+                background-color: #FFD060 !important;
+                color: #1a0a12 !important;
             }
         </style>""", unsafe_allow_html=True)
         if st.button("\u276E", key="close_sb"):
