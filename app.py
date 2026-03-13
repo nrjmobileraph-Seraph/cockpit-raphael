@@ -21,11 +21,7 @@ st.markdown("""<style>
 
 
     [data-testid="collapsedControl"] {display: block !important;}
-    @media (max-width: 768px) {
-        [data-testid="stSidebar"] {display: none !important;}
-        [data-testid="collapsedControl"] {display: none !important;}
-        .main .block-container {padding: 0.5rem !important; max-width: 100% !important;}
-    }
+    
 
 
 </style>""", unsafe_allow_html=True)
@@ -2081,48 +2077,64 @@ button:hover, .stButton>button:hover {
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
 
-    # Menu mobile (visible seulement sur petit ecran)
-    st.markdown("""<style>
-        @media (min-width: 769px) { .mobile-menu { display: none !important; } }
-        @media (max-width: 768px) { .mobile-menu { display: block !important; } }
-    </style>""", unsafe_allow_html=True)
-    with st.container():
-        st.markdown('<div class="mobile-menu">', unsafe_allow_html=True)
-        page_mobile = st.selectbox("Navigation", [
-            "Tableau de bord","Moteur ARVA (Rente)","Suivi AV x 3 contrats",
-            "Scenarios simulateurs","Fiscal & CAF","Declaration impots",
-            "LMNP (Location Meublee) & IRL","Jalons & Actions",
-            "AAH / CAF / PCH (Allocations)","Inflation","Succession",
-            "Mode Senior","Bilan d exportation","BoursoBank","Crypto",
-            "Annexe - Reference","Parametres","Saisie capital"],
-            key="mobile_nav")
-        st.markdown('</div>', unsafe_allow_html=True)
+
+    # === NAVIGATION MOBILE + DESKTOP ===
+    pages_list = [
+        "Tableau de bord","Moteur ARVA (Rente)","Suivi AV x 3 contrats",
+        "Scenarios simulateurs","Fiscal & CAF","Declaration impots",
+        "LMNP (Location Meublee) & IRL","Jalons & Actions",
+        "AAH / CAF / PCH (Allocations)","Inflation","Succession",
+        "Mode Senior","Bilan d exportation","BoursoBank","Crypto",
+        "Annexe - Reference","Parametres","Saisie capital"]
+    if "page" not in st.session_state:
+        st.session_state.page = "Tableau de bord"
+
+    # JS pour cacher sidebar sur mobile
+    st.markdown("""
+    <script>
+    function toggleSidebar() {
+        var sb = document.querySelector('[data-testid="stSidebar"]');
+        var ctrl = document.querySelector('[data-testid="collapsedControl"]');
+        if (!sb) return;
+        if (window.innerWidth < 768) {
+            sb.style.display = 'none';
+            if (ctrl) ctrl.style.display = 'none';
+        } else {
+            sb.style.display = '';
+            if (ctrl) ctrl.style.display = '';
+        }
+    }
+    window.addEventListener('resize', toggleSidebar);
+    window.addEventListener('load', toggleSidebar);
+    new MutationObserver(toggleSidebar).observe(document.body, {childList:true, subtree:true});
+    </script>
+    <style>
+    @media (max-width: 768px) {
+        [data-testid="stSidebar"] {display: none !important;}
+        [data-testid="collapsedControl"] {display: none !important;}
+    }
+    @media (min-width: 769px) {
+        .mobile-only {display: none !important;}
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Menu mobile en haut
+    st.markdown('<div class="mobile-only">', unsafe_allow_html=True)
+    page_mobile = st.selectbox("Navigation", pages_list,
+        index=pages_list.index(st.session_state.page), key="mob_nav")
+    st.session_state.page = page_mobile
+    st.markdown('</div>', unsafe_allow_html=True)
+
     with st.sidebar:
         st.markdown('<div style="text-align:center;padding:10px;"><span style="color:#FFD060;font-size:20px;font-weight:bold;">COCKPIT RAPHAEL</span></div>', unsafe_allow_html=True)
         st.markdown(f'<div style="text-align:center;color:#BBA888;">Age : {age:.1f} ans | Capital : {C:,.0f} EUR</div>', unsafe_allow_html=True)
         st.markdown("---")
-        page=st.radio("Navigation",[
-            "Tableau de bord",
-            "Moteur ARVA (Rente)",
-            "Suivi AV x 3 contrats",
-            "Scenarios simulateurs",
-            "Fiscal & CAF",
-            "Declaration impots",
-            "LMNP (Location Meublee) & IRL",
-            "Jalons & Actions",
-            "AAH / CAF / PCH (Allocations)",
-            "Inflation",
-            "Succession",
-            "Mode Senior",
-            "Bilan d exportation",
-            "BoursoBank",
-            "Crypto",
-            "Annexe - Reference",
-            "Parametres","Saisie capital",
-        ])
+        page=st.radio("Navigation", pages_list,
+            index=pages_list.index(st.session_state.page), key="desk_nav")
+        st.session_state.page = page
         st.markdown("---")
         st.caption("v4.3 - Mars 2026")
-    page = page if "page" in dir() and page else page_mobile
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
         "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
