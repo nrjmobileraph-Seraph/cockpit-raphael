@@ -2069,15 +2069,19 @@ button:hover, .stButton>button:hover {
     if not profil or not cap:
         st.error("Erreur base de donnees."); return
     age=age_actuel(profil); C=capital_total(cap)
-    # Menu de secours en haut si sidebar invisible
-    page_top = st.selectbox("Menu", [
+    # Menu principal
+    pages_list = [
         "Tableau de bord","Moteur ARVA (Rente)","Suivi AV x 3 contrats",
         "Scenarios simulateurs","Fiscal & CAF","Declaration impots",
         "LMNP (Location Meublee) & IRL","Jalons & Actions",
         "AAH / CAF / PCH (Allocations)","Inflation","Succession",
         "Mode Senior","Bilan d exportation","BoursoBank","Crypto",
-        "Annexe - Reference","Parametres","Saisie capital"],
-        key="menu_top")
+        "Annexe - Reference","Parametres","Saisie capital"]
+    st.markdown("""<style>
+        div[data-testid="stSelectbox"] > div > div {background:#1a0a12 !important; color:#FFD060 !important; border:1px solid #FFD060 !important; border-radius:8px;}
+        div[data-testid="stSelectbox"] label {color:#FFD060 !important; font-weight:bold;}
+    </style>""", unsafe_allow_html=True)
+    page_top = st.selectbox("NAVIGATION", pages_list, key="menu_top")
     with st.sidebar:
         try:
             st.markdown("## Cockpit Raphael")
