@@ -2079,24 +2079,27 @@ button:hover, .stButton>button:hover {
         "Annexe - Reference","Parametres","Saisie capital"],
         key="menu_top")
     with st.sidebar:
-        st.markdown("## Cockpit Raphael")
-        st.markdown(f"**Age :** {age:.1f} ans")
-        st.markdown('<div style="background:#0A2010;border:1px solid #1A6B4B;border-radius:6px;padding:8px 12px;margin:4px 0;text-align:center;"><span style="color:#4DFF99;font-size:11px;font-weight:700;letter-spacing:1px;">PLAN OPERATIONNEL</span><br><span style="color:#BBA888;font-size:10px;">Garanti jusqu&#39;a 92 ans</span></div>', unsafe_allow_html=True)
-        st.markdown(f"**Capital :** {C:,.0f} EUR")
-        st.markdown(f"**Rail :** {profil['rail_mensuel']:,.0f} EUR/mois")
-        mdph80 = profil.get('mdph_80plus', 0)
-        st.markdown(f"**MDPH :** {profil['taux_mdph']}%")
-        if mdph80:
-            st.markdown('<div style="background:#0A2010;border:1px solid #4DFF99;border-radius:6px;padding:6px 10px;text-align:center;"><span style="color:#4DFF99;font-size:10px;font-weight:700;">AAH A VIE</span></div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="background:#2A1800;border:1px solid #D4A017;border-radius:6px;padding:6px 10px;text-align:center;"><span style="color:#FFD060;font-size:10px;font-weight:700;">AAH STOP 64 ANS</span></div>', unsafe_allow_html=True)
-        al=calculer_alertes(profil,cap)
-        nr=sum(1 for n,_ in al if n=='rouge')
-        no=sum(1 for n,_ in al if n=='orange')
-        if nr: st.markdown(f"**{nr} alerte(s) rouge(s)**")
-        elif no: st.markdown(f"{no} alertes(s) orange")
-        else: st.markdown("Aucune alerte")
-        st.markdown("---")
+        try:
+            st.markdown("## Cockpit Raphael")
+            st.markdown(f"**Age :** {age:.1f} ans")
+            st.markdown('<div style="background:#0A2010;border:1px solid #1A6B4B;border-radius:6px;padding:8px 12px;margin:4px 0;text-align:center;"><span style="color:#4DFF99;font-size:11px;font-weight:700;letter-spacing:1px;">PLAN OPERATIONNEL</span><br><span style="color:#BBA888;font-size:10px;">Garanti jusqu&#39;a 92 ans</span></div>', unsafe_allow_html=True)
+            st.markdown(f"**Capital :** {C:,.0f} EUR")
+            st.markdown(f"**Rail :** {profil['rail_mensuel']:,.0f} EUR/mois")
+            mdph80 = profil.get('mdph_80plus', 0)
+            st.markdown(f"**MDPH :** {profil['taux_mdph']}%")
+            if mdph80:
+                st.markdown('<div style="background:#0A2010;border:1px solid #4DFF99;border-radius:6px;padding:6px 10px;text-align:center;"><span style="color:#4DFF99;font-size:10px;font-weight:700;">AAH A VIE</span></div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div style="background:#2A1800;border:1px solid #D4A017;border-radius:6px;padding:6px 10px;text-align:center;"><span style="color:#FFD060;font-size:10px;font-weight:700;">AAH STOP 64 ANS</span></div>', unsafe_allow_html=True)
+            al=calculer_alertes(profil,cap)
+            nr=sum(1 for n,_ in al if n=='rouge')
+            no=sum(1 for n,_ in al if n=='orange')
+            if nr: st.markdown(f"**{nr} alerte(s) rouge(s)**")
+            elif no: st.markdown(f"{no} alertes(s) orange")
+            else: st.markdown("Aucune alerte")
+            st.markdown("---")
+        except Exception as e:
+            st.warning(f"Erreur sidebar: {e}")
         page=st.radio("Navigation",[
             "Tableau de bord",
             "Moteur ARVA (Rente)",
