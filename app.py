@@ -2097,6 +2097,14 @@ button:hover, .stButton>button:hover {
                 display: block !important; visibility: visible !important;
                 transform: translateX(0) !important; width: 300px !important; min-width: 300px !important;
             }
+    /* Cacher le chevron natif non fonctionnel */
+    button[data-testid="stBaseButton-headerNoPadding"] {
+        display: none !important;
+    }
+    [data-testid="stSidebarCollapseButton"] {
+        display: none !important;
+    }
+
         </style>""", unsafe_allow_html=True)
 
     with st.sidebar:
