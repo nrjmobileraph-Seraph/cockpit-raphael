@@ -18,16 +18,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 st.markdown("""<style>
-    [data-testid="stSidebar"] {display: block !important; width: 300px !important; min-width: 300px !important;}
-    [data-testid="stSidebar"] > div {display: block !important; width: 300px !important;}
+
+
     [data-testid="collapsedControl"] {display: block !important;}
     @media (max-width: 768px) {
         [data-testid="stSidebar"] {display: none !important;}
         [data-testid="collapsedControl"] {display: none !important;}
         .main .block-container {padding: 0.5rem !important; max-width: 100% !important;}
     }
-    section[data-testid="stSidebar"] {display: block !important; opacity: 1 !important; width: 300px !important; transform: none !important;}
-    section[data-testid="stSidebar"] {display: block !important; opacity: 1 !important; width: 300px !important; transform: none !important;}
+
+
 </style>""", unsafe_allow_html=True)
 st.markdown("""<style>
 /* FORCE TOUS LES BOUTONS - BORDEAUX OR */
