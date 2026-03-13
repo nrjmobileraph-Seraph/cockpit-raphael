@@ -2130,9 +2130,7 @@ button:hover, .stButton>button:hover {
         st.markdown('<div style="text-align:center;padding:10px;"><span style="color:#FFD060;font-size:20px;font-weight:bold;">COCKPIT RAPHAEL</span></div>', unsafe_allow_html=True)
         st.markdown(f'<div style="text-align:center;color:#BBA888;">Age : {age:.1f} ans | Capital : {C:,.0f} EUR</div>', unsafe_allow_html=True)
         st.markdown("---")
-        page=st.radio("Navigation", pages_list,
-            index=pages_list.index(st.session_state.page), key="desk_nav")
-        st.session_state.page = page
+        page=st.radio("Navigation", pages_list)
         st.markdown("---")
         st.caption("v4.3 - Mars 2026")
     {
