@@ -396,34 +396,27 @@ def page_dashboard(profil, cap):
     age = age_actuel(profil)
     C = capital_total(cap)
 
-    # Planning chronologique avec solde cumule
-    planning = [
-        ('2026-03-12', 'Situation actuelle', 0, 'info'),
-        ('2026-04-15', 'Reception AV Jean-Luc', 22800, 'entree'),
-        ('2026-04-25', 'Donation usufruit MEYLAN', -3349, 'sortie'),
-        ('2026-06-10', 'Virement net SCI', 296100, 'entree'),
-        ('2026-06-30', 'Acompte travaux 30%', -9900, 'sortie'),
-        ('2026-07-05', 'Virement net succession', 182900, 'entree'),
-        ('2026-08-01', 'Recuperation appart + garage', 0, 'info'),
-        ('2026-11-15', 'Solde artisans 70%', -23100, 'sortie'),
-        ('2026-12-01', 'Mobilier LMNP', -15000, 'sortie'),
-        ('2026-12-31', 'Charges courantes avant location', -1075, 'sortie'),
-        ('2027-01-15', 'Premier bail mobilite - LMNP operationnel', 0, 'info'),
-    ]
+    # Planning depuis la base de donnees (chronologie)
+    db_dash = db_wrapper.connect()
+    c_dash = db_dash.cursor()
+    c_dash.execute("SELECT * FROM chronologie WHERE montant > 0 OR sens = 'info' ORDER BY date_cible ASC")
+    rows_planning = [dict(r) for r in c_dash.fetchall()]
+    db_dash.close()
 
-    # Calculer solde cumule a la date du jour
     solde = 0
     passe = []
     avenir = []
-    for d, label, flux, typ in planning:
-        dt = date.fromisoformat(d)
-        solde_avant = solde
-        if flux != 0:
-            solde += flux
-        if dt <= today:
-            passe.append((d, label, flux, typ, solde))
+    for r in rows_planning:
+        flux = r['montant'] if r['sens'] == 'entree' else (-r['montant'] if r['sens'] == 'sortie' else 0)
+        if r['fait'] == 1:
+            mr = r['montant_reel'] if r['montant_reel'] else r['montant']
+            flux_reel = mr if r['sens'] == 'entree' else (-mr if r['sens'] == 'sortie' else 0)
+            solde += flux_reel
+            passe.append((r['date_cible'], r['action'], flux_reel, r['sens'], solde, r['id']))
         else:
-            avenir.append((d, label, flux, typ, solde))
+            if flux != 0:
+                solde += flux
+            avenir.append((r['date_cible'], r['action'], flux, r['sens'], solde, r['id']))
 
     # Phase detection
     phase_0 = today < date(2027, 1, 15)
@@ -543,11 +536,14 @@ def page_dashboard(profil, cap):
         </div>""", unsafe_allow_html=True)
 
         # Prochaines actions
-        titre("📋 PROCHAINES ACTIONS")
+        titre("PROCHAINES ACTIONS")
         if avenir:
-            for d, label, flux, typ, sol in avenir[:6]:
-                dt = date.fromisoformat(d)
-                jours = (dt - today).days
+            for d, label, flux, typ, sol, rid in avenir[:8]:
+                try:
+                    dt = date.fromisoformat(d)
+                    jours = (dt - today).days
+                except:
+                    jours = 0
                 if flux > 0:
                     flux_txt = f'<span style="color:#4DFF99;font-weight:700;">+{flux:,.0f} EUR</span>'
                 elif flux < 0:
@@ -555,31 +551,40 @@ def page_dashboard(profil, cap):
                 else:
                     flux_txt = '<span style="color:#BBA888;">—</span>'
                 badge_col = "#4DFF99" if typ=="entree" else ("#FF7777" if typ=="sortie" else "#FFD060")
-                st.markdown(f"""<div style="background:#140810;border-left:3px solid {badge_col};border-radius:0 8px 8px 0;padding:10px 16px;margin:4px 0;display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                        <span style="color:#F0E6D8;font-size:14px;font-weight:600;">{label}</span><br>
-                        <span style="color:#BBA888;font-size:11px;">Dans {jours} jours · {dt.strftime('%d/%m/%Y')}</span>
-                    </div>
-                    <div style="text-align:right;">
-                        {flux_txt}<br>
-                        <span style="color:#BBA888;font-size:11px;">Solde apres : {sol:,.0f} EUR</span>
-                    </div>
-                </div>""", unsafe_allow_html=True)
+                c_act, c_btn = st.columns([5, 1])
+                with c_act:
+                    st.markdown(f'<div style="background:#140810;border-left:3px solid {badge_col};border-radius:0 8px 8px 0;padding:10px 16px;margin:4px 0;display:flex;justify-content:space-between;align-items:center;"><div><span style="color:#F0E6D8;font-size:14px;font-weight:600;">{label}</span><br><span style="color:#BBA888;font-size:11px;">Dans {jours} jours</span></div><div style="text-align:right;">{flux_txt}</div></div>', unsafe_allow_html=True)
+                with c_btn:
+                    if st.button("FAIT", key=f"dash_fait_{rid}"):
+                        db_f = db_wrapper.connect()
+                        db_f.execute("UPDATE chronologie SET fait=1, montant_reel=%s, date_reelle=%s WHERE id=%s", (abs(flux) if flux != 0 else 0, str(today), rid))
+                        db_f.commit()
+                        db_f.close()
+                        st.rerun()
         else:
             st.markdown('<div style="color:#4DFF99;font-size:16px;text-align:center;padding:20px;">✅ Toutes les etapes sont terminees !</div>', unsafe_allow_html=True)
 
         # Actions deja faites
         if passe:
-            titre("✅ DEJA FAIT")
-            for d, label, flux, typ, sol in passe:
+            titre("DEJA FAIT")
+            for d, label, flux, typ, sol, rid in passe:
                 flux_txt = f"+{flux:,.0f}" if flux>0 else (f"{flux:,.0f}" if flux<0 else "—")
-                st.markdown(f'<div style="color:#666;font-size:12px;padding:4px 16px;">✓ {d} · {label} · {flux_txt} EUR</div>', unsafe_allow_html=True)
+                c_fait, c_ann = st.columns([5, 1])
+                with c_fait:
+                    st.markdown(f'<div style="background:#0A2010;border-left:3px solid #4DFF99;border-radius:0 6px 6px 0;padding:6px 16px;margin:2px 0;"><span style="color:#4DFF99;font-weight:700;">FAIT</span> <span style="color:#CCBBAA;font-size:13px;">{d} | {label} | {flux_txt} EUR</span></div>', unsafe_allow_html=True)
+                with c_ann:
+                    if st.button("ANNULER", key=f"dash_undo_{rid}"):
+                        db_u = db_wrapper.connect()
+                        db_u.execute("UPDATE chronologie SET fait=0, montant_reel=0, date_reelle='' WHERE id=%s", (rid,))
+                        db_u.commit()
+                        db_u.close()
+                        st.rerun()
 
         # Tresorerie previsionnelle
         titre("📈 TRESORERIE PREVISIONNELLE")
         all_events = passe + avenir
         chart_data = []
-        for d, label, flux, typ, sol in all_events:
+        for d, label, flux, typ, sol, _rid in all_events:
             if flux != 0:
                 chart_data.append({"date": d, "solde": sol})
         if chart_data:
