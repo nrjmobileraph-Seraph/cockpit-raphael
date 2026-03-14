@@ -109,6 +109,15 @@ st.markdown("""
   #MainMenu { visibility: hidden !important; }
   footer { visibility: hidden !important; }
   div[data-testid="stToolbar"] { display: none !important; }
+  @media (max-width: 768px) {
+    .main .block-container { padding: 0.5rem 0.8rem !important; }
+    [data-testid="stMetric"] { padding: 8px !important; }
+    [data-testid="stMetricValue"] { font-size: 20px !important; }
+    .kpi { padding: 10px 12px !important; }
+    .kpi-val { font-size: 20px !important; }
+    table { font-size: 11px !important; }
+    table th, table td { padding: 4px 6px !important; }
+  }
 
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(0.92); box-shadow: 0 0 15px rgba(196,146,42,0.6); } 100% { transform: scale(1); } }
   button:active { animation: pulse 0.15s ease !important; }
@@ -2053,21 +2062,37 @@ def page_depenses(profil, cap):
 
     # Categories avec estimations moyennes
     categories = {
-        'Alimentation': {'priorite': 'essentiel', 'estimation': 350, 'icon': 'A'},
-        'Sante / Pharmacie': {'priorite': 'essentiel', 'estimation': 50, 'icon': 'S'},
-        'Transport / Essence': {'priorite': 'essentiel', 'estimation': 80, 'icon': 'T'},
-        'Electricite': {'priorite': 'essentiel', 'estimation': 50, 'icon': 'E'},
-        'Eau': {'priorite': 'essentiel', 'estimation': 5, 'icon': 'O'},
-        'Internet / Tel': {'priorite': 'essentiel', 'estimation': 40, 'icon': 'I'},
-        'Assurances': {'priorite': 'essentiel', 'estimation': 60, 'icon': 'As'},
-        'Hygiene / Entretien': {'priorite': 'secondaire', 'estimation': 30, 'icon': 'H'},
-        'Vetements': {'priorite': 'secondaire', 'estimation': 30, 'icon': 'V'},
-        'Equipement maison': {'priorite': 'secondaire', 'estimation': 20, 'icon': 'Eq'},
-        'Amazon / Achats en ligne': {'priorite': 'secondaire', 'estimation': 50, 'icon': 'Am'},
-        'Loisirs / Sorties': {'priorite': 'plaisir', 'estimation': 0, 'icon': 'L'},
-        'Restaurants / Cafes': {'priorite': 'plaisir', 'estimation': 0, 'icon': 'R'},
-        'Cadeaux': {'priorite': 'plaisir', 'estimation': 0, 'icon': 'C'},
-        'Divers': {'priorite': 'secondaire', 'estimation': 20, 'icon': 'D'},
+        'Alimentation / Courses': {'priorite': 'essentiel', 'estimation': 350},
+        'Sante / Pharmacie / Mutuelle': {'priorite': 'essentiel', 'estimation': 80},
+        'Transport / Essence / Entretien auto': {'priorite': 'essentiel', 'estimation': 100},
+        'Electricite': {'priorite': 'essentiel', 'estimation': 50},
+        'Eau': {'priorite': 'essentiel', 'estimation': 5},
+        'Gaz / Chauffage': {'priorite': 'essentiel', 'estimation': 30},
+        'Internet / Telephone': {'priorite': 'essentiel', 'estimation': 40},
+        'Assurance auto': {'priorite': 'essentiel', 'estimation': 50},
+        'Assurance habitation': {'priorite': 'essentiel', 'estimation': 20},
+        'Taxe fonciere': {'priorite': 'essentiel', 'estimation': 40},
+        'Charges copropriete': {'priorite': 'essentiel', 'estimation': 0},
+        'TEOM': {'priorite': 'essentiel', 'estimation': 20},
+        'Hygiene / Produits entretien': {'priorite': 'secondaire', 'estimation': 25},
+        'Vetements / Chaussures': {'priorite': 'secondaire', 'estimation': 30},
+        'Equipement maison / Bricolage': {'priorite': 'secondaire', 'estimation': 20},
+        'Amazon / Achats en ligne': {'priorite': 'secondaire', 'estimation': 50},
+        'Coiffeur': {'priorite': 'secondaire', 'estimation': 15},
+        'Pressing / Laverie': {'priorite': 'secondaire', 'estimation': 10},
+        'Papeterie / Fournitures': {'priorite': 'secondaire', 'estimation': 5},
+        'Frais bancaires': {'priorite': 'secondaire', 'estimation': 5},
+        'Abonnements (Spotify, Netflix...)': {'priorite': 'secondaire', 'estimation': 20},
+        'Restaurants / Cafes': {'priorite': 'plaisir', 'estimation': 0},
+        'Loisirs / Sorties / Cinema': {'priorite': 'plaisir', 'estimation': 0},
+        'Cadeaux': {'priorite': 'plaisir', 'estimation': 0},
+        'Vacances / Voyages': {'priorite': 'plaisir', 'estimation': 0},
+        'Livres / Jeux / Culture': {'priorite': 'plaisir', 'estimation': 0},
+        'Sport / Salle': {'priorite': 'plaisir', 'estimation': 0},
+        'Reparation voiture': {'priorite': 'exceptionnel', 'estimation': 0},
+        'Electromenager': {'priorite': 'exceptionnel', 'estimation': 0},
+        'Medecin specialiste / Dentiste': {'priorite': 'exceptionnel', 'estimation': 0},
+        'Amendes / Imprevu': {'priorite': 'exceptionnel', 'estimation': 0},
     }
 
     # Charger depenses du mois
@@ -2082,7 +2107,8 @@ def page_depenses(profil, cap):
     total_essentiel = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'essentiel')
     total_secondaire = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'secondaire')
     total_plaisir = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'plaisir')
-    total_mois = total_essentiel + total_secondaire + total_plaisir
+    total_excep = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'exceptionnel')
+    total_mois = total_essentiel + total_secondaire + total_plaisir + total_excep
     reste = rail - total_mois
     budget_essentiel = sum(v['estimation'] for v in categories.values() if v['priorite'] == 'essentiel')
     budget_secondaire = sum(v['estimation'] for v in categories.values() if v['priorite'] == 'secondaire')
@@ -2102,7 +2128,9 @@ def page_depenses(profil, cap):
         montant = st.number_input("Montant (EUR)", value=0.0, step=1.0, min_value=0.0)
     with c4:
         prio = categories[cat]['priorite']
-        st.markdown(f'<div style="margin-top:28px;padding:6px 10px;background:{"#2A0F0F" if prio=="essentiel" else ("#2A1800" if prio=="secondaire" else "#0A2010")};border-radius:6px;text-align:center;"><span style="color:{"#FF7777" if prio=="essentiel" else ("#FFD060" if prio=="secondaire" else "#4DFF99")};font-size:11px;font-weight:700;">{prio.upper()}</span></div>', unsafe_allow_html=True)
+        prio_colors = {'essentiel': '#FF7777', 'secondaire': '#FFD060', 'plaisir': '#4DFF99', 'exceptionnel': '#CC88FF'}
+        prio_bg = {'essentiel': '#2A0F0F', 'secondaire': '#2A1800', 'plaisir': '#0A2010', 'exceptionnel': '#1A0A2A'}
+        st.markdown(f'<div style="margin-top:28px;padding:6px 10px;background:{prio_bg.get(prio,"#1A0D12")};border-radius:6px;text-align:center;"><span style="color:{prio_colors.get(prio,"#CCBBAA")};font-size:11px;font-weight:700;">{prio.upper()}</span></div>', unsafe_allow_html=True)
     if st.button("Ajouter", key="add_dep"):
         if desc and montant > 0:
             db2 = db_wrapper.connect()
@@ -2178,15 +2206,52 @@ def page_depenses(profil, cap):
     else:
         st.caption("Aucune depense loisir ce mois — tout le budget loisir est disponible !")
 
-    # Budget estimatif par categorie
-    titre("Budget mensuel estimatif par categorie")
+    titre("Exceptionnel / Ponctuel")
+    dep_exc = [d for d in depenses_mois if d['priorite'] == 'exceptionnel']
+    if dep_exc:
+        for d in dep_exc:
+            c1, c2, c3, c4 = st.columns([3, 2, 1, 1])
+            with c1:
+                st.write(f"**{d['description']}**")
+            with c2:
+                st.caption(f"{d['categorie']} | {d['date']}")
+            with c3:
+                st.write(f"**{d['montant']:,.0f} EUR**")
+            with c4:
+                if st.button("X", key=f"del_{d['id']}"):
+                    db3 = db_wrapper.connect()
+                    db3.execute("DELETE FROM depenses WHERE id = %s", (d['id'],))
+                    db3.commit()
+                    db3.close()
+                    st.rerun()
+    else:
+        st.caption("Aucune depense exceptionnelle ce mois")
+
+    # Budget estimatif par categorie - tableau HTML propre
+    titre("Budget mensuel estimatif")
+    prio_colors = {'essentiel': '#FF7777', 'secondaire': '#FFD060', 'plaisir': '#4DFF99', 'exceptionnel': '#CC88FF'}
+    prio_labels = {'essentiel': 'ESSENTIEL', 'secondaire': 'SECONDAIRE', 'plaisir': 'PLAISIR', 'exceptionnel': 'EXCEPTIONNEL'}
+    table_html = '<div style="background:#1A0D12;border-radius:12px;padding:16px;overflow-x:auto;">'
+    table_html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    table_html += '<tr style="border-bottom:2px solid #C4922A;"><th style="text-align:left;padding:8px;color:#BBA888;">CATEGORIE</th><th style="text-align:center;padding:8px;color:#BBA888;">TYPE</th><th style="text-align:right;padding:8px;color:#BBA888;">BUDGET</th><th style="text-align:right;padding:8px;color:#BBA888;">DEPENSE</th><th style="text-align:right;padding:8px;color:#BBA888;">RESTE</th></tr>'
+    current_prio = None
     for cat_name, cat_info in categories.items():
+        p = cat_info['priorite']
+        if p != current_prio:
+            current_prio = p
+            table_html += f'<tr><td colspan="5" style="padding:10px 8px 4px;color:{prio_colors[p]};font-weight:700;font-size:14px;border-bottom:1px solid {prio_colors[p]}40;">{prio_labels[p]}</td></tr>'
         depense_cat = sum(d['montant'] for d in depenses_mois if d['categorie'] == cat_name)
         est = cat_info['estimation']
         reste_cat = est - depense_cat
-        prio_col = "#FF7777" if cat_info['priorite'] == 'essentiel' else ("#FFD060" if cat_info['priorite'] == 'secondaire' else "#4DFF99")
-        if est > 0:
-            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #1A0D12;"><span style="color:#F0E6D8;">{cat_name}</span><span style="color:{prio_col};">{depense_cat:,.0f} / {est} EUR</span><span style="color:{"#4DFF99" if reste_cat >= 0 else "#FF7777"};">{"+" if reste_cat >= 0 else ""}{reste_cat:,.0f} EUR</span></div>', unsafe_allow_html=True)
+        reste_col = "#4DFF99" if reste_cat >= 0 else "#FF7777"
+        est_txt = f"{est} EUR" if est > 0 else "-"
+        reste_txt = f"{reste_cat:+,.0f} EUR" if est > 0 else (f"-{depense_cat:,.0f} EUR" if depense_cat > 0 else "-")
+        table_html += f'<tr style="border-bottom:1px solid #1A1A1A;"><td style="padding:6px 8px;color:#F0E6D8;">{cat_name}</td><td style="text-align:center;padding:6px 8px;"><span style="color:{prio_colors[p]};font-size:10px;font-weight:700;">{p[:3].upper()}</span></td><td style="text-align:right;padding:6px 8px;color:#CCBBAA;">{est_txt}</td><td style="text-align:right;padding:6px 8px;color:#F0E6D8;font-weight:600;">{depense_cat:,.0f} EUR</td><td style="text-align:right;padding:6px 8px;color:{reste_col};font-weight:600;">{reste_txt}</td></tr>'
+    # Totaux
+    total_budget = sum(v['estimation'] for v in categories.values())
+    table_html += f'<tr style="border-top:2px solid #C4922A;"><td style="padding:10px 8px;color:#FFD060;font-weight:900;font-size:14px;">TOTAL</td><td></td><td style="text-align:right;padding:10px 8px;color:#FFD060;font-weight:900;">{total_budget:,.0f} EUR</td><td style="text-align:right;padding:10px 8px;color:#FFD060;font-weight:900;">{total_mois:,.0f} EUR</td><td style="text-align:right;padding:10px 8px;color:{"#4DFF99" if reste >= 0 else "#FF7777"};font-weight:900;">{reste:+,.0f} EUR</td></tr>'
+    table_html += '</table></div>'
+    st.markdown(table_html, unsafe_allow_html=True)
 
 
 def main():
