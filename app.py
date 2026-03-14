@@ -156,6 +156,9 @@ st.markdown("""
   [data-testid="stMarkdownContainer"] { color: #F0E6D8 !important; }
   .stTabs [data-baseweb="tab"] { color: #E0D0B8 !important; }
   .stTabs [aria-selected="true"] { color: #FFD060 !important; }
+  .highlight { background: rgba(196,146,42,0.2); padding: 2px 8px; border-radius: 4px; border-left: 3px solid #FFD060; font-weight: 700; }
+  .highlight-green { background: rgba(77,255,153,0.12); padding: 2px 8px; border-radius: 4px; border-left: 3px solid #4DFF99; font-weight: 700; }
+  .highlight-red { background: rgba(204,51,51,0.15); padding: 2px 8px; border-radius: 4px; border-left: 3px solid #FF7777; font-weight: 700; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -2063,6 +2066,7 @@ def page_annexe(profil, cap):
         ["Diagnostics + CSI + droit partage", "-4 204 EUR"],
         ["<b style='color:#4DFF99;'>NET RAPHAEL SCI</b>", "<b style='color:#4DFF99;'>+296 100 EUR</b>"],
     ], "IR 19% = 0 EUR (exonere apres 22 ans de detention)")
+    st.markdown('<div class="highlight-green">A RETENIR : Net Raphael SCI = 296 100 EUR, zero impot sur la plus-value</div>', unsafe_allow_html=True)
 
     tableau("Succession Jean-Luc Boussy", ["Poste", "Montant"], [
         ["Actif brut (maison + appart + liquidites + voiture + AV)", "591 000 EUR"],
@@ -2079,6 +2083,7 @@ def page_annexe(profil, cap):
         ["<b style='color:#4DFF99;'>NET SUCCESSION RAPHAEL</b>", "<b style='color:#4DFF99;'>+205 716 EUR</b>"],
     ])
     alerte('rouge', "CONFIRMER abattement handicap Anne-Lyse aupres du notaire. Sans abattement : droits = 131 193 EUR.")
+    st.markdown('<div class="highlight">A RETENIR : Heritage total Jean-Luc = 501 800 EUR (SCI 296 100 + AV 22 800 + succession 182 900)</div>', unsafe_allow_html=True)
 
     tableau("Ventes immobilieres — planchers", ["Bien", "Plancher", "Note"], [
         ["Maison Kleber (La Ravoire)", "215 000 EUR", "Strategie degressive 235k a 215k"],
@@ -2103,6 +2108,7 @@ def page_annexe(profil, cap):
         ["Mobilier", "2 143 EUR", "7 ans"],
         ["<b>TOTAL</b>", "<b>11 087 EUR/an</b>", ""],
     ], "Base imposable = 0 EUR jusqu'en 2051")
+    st.markdown('<div class="highlight-green">A RETENIR : LMNP = 320 EUR/mois net, zero impot pendant 25 ans</div>', unsafe_allow_html=True)
 
     titre("4. Capital total")
     tableau("Construction du capital", ["Source", "Montant"], [
@@ -2135,6 +2141,7 @@ def page_annexe(profil, cap):
         ["2039+ (si MDPH >= 80%)", "1 033 EUR/mois", "AAH a vie, pas de bascule"],
     ], "L'AAH est protegee par les amortissements LMNP qui maintiennent le RFR a 0.")
     st.markdown('<div style="background:#2A1800;border:1px solid #D4A017;border-radius:8px;padding:10px 14px;color:#FFD060;font-size:13px;margin:8px 0;"><b>ASPA (64+ ans) :</b> prend 3% valeur venale de TOUS les biens. Seuil : capital &lt; 198 433 EUR (~80 ans).</div>', unsafe_allow_html=True)
+    st.markdown('<div class="highlight-red">CRITIQUE : si MDPH &lt; 80%, AAH s arrete a 64 ans. Confirmer le taux MDPH est la priorite n°1.</div>', unsafe_allow_html=True)
 
     titre("6. Versement parents")
     tableau("Detail mensuel", ["Poste", "Montant"], [
@@ -2165,7 +2172,123 @@ def page_annexe(profil, cap):
         ["MDPH", "Si >= 80%, bascule automatique AAH a vie"],
         ["Depenses", "Suivi mensuel par categorie, 31 postes, budget estimatif"],
         ["ARVA", "Calcul rente optimale pour 50 000 EUR a 92 ans"],
+        ["Macro", "Ajustement projections selon contexte economique"],
     ])
+
+
+def page_macro(profil, cap):
+    titre("MODULE MACRO — AJUSTEMENT ECONOMIQUE")
+    C = capital_total(cap)
+    r_base = profil['rendement_annuel']
+    rail = profil['rail_mensuel']
+    aah = profil['aah_mensuel']
+    loyer = profil['loyer_net']
+
+    st.markdown('<div style="background:#1A0D12;border:2px solid #C4922A;border-radius:12px;padding:20px;margin-bottom:16px;"><div style="color:#FFD060;font-size:16px;font-weight:700;margin-bottom:8px;">PRINCIPE</div><div style="color:#F0E6D8;font-size:13px;line-height:1.8;">Le plan de base utilise un rendement fixe de 3,5%/an. En realite, le rendement fluctue selon le contexte economique. Ce module ajuste les projections pour voir l impact d une crise, d une recession ou d une periode favorable sur le plan a 92 ans.</div></div>', unsafe_allow_html=True)
+
+    # Scenarios predefinies
+    titre("1. Scenarios economiques")
+    scenarios = {
+        "Crise severe (2008)": {"rendement": 1.5, "inflation": 0.5, "immobilier": -15, "description": "Krach financier, taux bas, deflation, immobilier en chute"},
+        "Recession moderee": {"rendement": 2.0, "inflation": 1.0, "immobilier": -5, "description": "Croissance faible, taux bas, immobilier stable/baisse"},
+        "Normal (base du plan)": {"rendement": 3.5, "inflation": 2.0, "immobilier": 2, "description": "Croissance moderee, inflation maitrisee"},
+        "Croissance forte": {"rendement": 5.0, "inflation": 2.5, "immobilier": 5, "description": "Economie dynamique, marches haussiers"},
+        "Euphorie (bulle)": {"rendement": 7.0, "inflation": 3.5, "immobilier": 10, "description": "Marches tres haut, attention au retournement"},
+        "Stagflation": {"rendement": 1.0, "inflation": 5.0, "immobilier": -3, "description": "Inflation forte + croissance nulle, scenario le plus dangereux"},
+    }
+
+    sc_table = '<div style="background:#1A0D12;border-radius:10px;padding:16px;margin:8px 0;"><table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    sc_table += '<tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Scenario</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Rendement</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Inflation</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Immobilier</th><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Description</th></tr>'
+    for sc_name, sc_data in scenarios.items():
+        rend_col = "#4DFF99" if sc_data["rendement"] >= 3.5 else ("#FFD060" if sc_data["rendement"] >= 2.0 else "#FF7777")
+        sc_table += f'<tr style="border-bottom:1px solid #1A1A1A;"><td style="padding:6px 8px;color:#F0E6D8;font-weight:600;">{sc_name}</td><td style="text-align:center;padding:6px 8px;color:{rend_col};">{sc_data["rendement"]}%</td><td style="text-align:center;padding:6px 8px;color:#CCBBAA;">{sc_data["inflation"]}%</td><td style="text-align:center;padding:6px 8px;color:{"#4DFF99" if sc_data["immobilier"]>=0 else "#FF7777"};">{sc_data["immobilier"]:+d}%</td><td style="padding:6px 8px;color:#BBA888;font-size:12px;">{sc_data["description"]}</td></tr>'
+    sc_table += '</table></div>'
+    st.markdown(sc_table, unsafe_allow_html=True)
+
+    titre("2. Simulateur")
+    choix_sc = st.selectbox("Choisir un scenario", list(scenarios.keys()), index=2)
+    sc = scenarios[choix_sc]
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        rend_ajuste = st.slider("Rendement ajuste (%/an)", 0.0, 8.0, float(sc["rendement"]), 0.1)
+    with c2:
+        infl_ajuste = st.slider("Inflation (%/an)", 0.0, 6.0, float(sc["inflation"]), 0.1)
+    with c3:
+        immo_ajuste = st.slider("Variation immobilier (%)", -20, 20, int(sc["immobilier"]), 1)
+
+    # Calcul C92 base vs ajuste
+    def calc_c92(C0, rend, rail_m, aah_m, loyer_m, immo_pct=2):
+        r_m = (1 + rend/100) ** (1/12) - 1
+        def A(n):
+            return ((1 + rend/100)**n - 1) / r_m if r_m > 0 else n
+        def P(n):
+            return (1 + rend/100) ** n
+        pp1 = rail_m - aah_m - loyer_m
+        immo = 205000 * (1 + immo_pct/100) ** 14
+        C64 = C0 * P(14) - pp1 * A(14) + immo
+        C75 = C64 * P(11) - rail_m * A(11)
+        C92 = C75 * P(17) - (rail_m - 450) * A(17)
+        return C64, C75, C92
+
+    C64_base, C75_base, C92_base = calc_c92(C, r_base*100, rail, aah, loyer, 2)
+    C64_adj, C75_adj, C92_adj = calc_c92(C, rend_ajuste, rail, aah, loyer, immo_ajuste)
+
+    # Impact inflation sur rail reel
+    rail_reel_10 = rail / (1 + infl_ajuste/100)**10
+    rail_reel_20 = rail / (1 + infl_ajuste/100)**20
+    rail_reel_42 = rail / (1 + infl_ajuste/100)**42
+
+    titre("3. Resultats")
+    # Comparaison
+    comp_html = '<div style="display:flex;gap:16px;margin:12px 0;flex-wrap:wrap;">'
+    comp_html += f'<div style="flex:1;min-width:200px;background:#1A0D12;border:2px solid #C4922A;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">PLAN DE BASE (3,5%)</div><div style="color:#FFD060;font-size:11px;margin:8px 0;">C64</div><div style="color:#F0E6D8;font-size:18px;font-weight:700;">{C64_base:,.0f} EUR</div><div style="color:#FFD060;font-size:11px;margin:8px 0;">C75</div><div style="color:#F0E6D8;font-size:18px;font-weight:700;">{C75_base:,.0f} EUR</div><div style="color:#FFD060;font-size:11px;margin:8px 0;">C92</div><div style="color:{"#4DFF99" if C92_base>=50000 else "#FF7777"};font-size:28px;font-weight:900;">{C92_base:,.0f} EUR</div></div>'
+    comp_html += f'<div style="flex:1;min-width:200px;background:#1A0D12;border:2px solid {"#4DFF99" if C92_adj>=50000 else "#FF7777"};border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">SCENARIO {choix_sc.upper()[:20]}</div><div style="color:#FFD060;font-size:11px;margin:8px 0;">C64</div><div style="color:#F0E6D8;font-size:18px;font-weight:700;">{C64_adj:,.0f} EUR</div><div style="color:#FFD060;font-size:11px;margin:8px 0;">C75</div><div style="color:#F0E6D8;font-size:18px;font-weight:700;">{C75_adj:,.0f} EUR</div><div style="color:#FFD060;font-size:11px;margin:8px 0;">C92</div><div style="color:{"#4DFF99" if C92_adj>=50000 else "#FF7777"};font-size:28px;font-weight:900;">{C92_adj:,.0f} EUR</div></div>'
+    delta = C92_adj - C92_base
+    comp_html += f'<div style="flex:1;min-width:200px;background:#1A0D12;border:2px solid {"#4DFF99" if delta>=0 else "#FF7777"};border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">IMPACT</div><div style="color:{"#4DFF99" if delta>=0 else "#FF7777"};font-size:36px;font-weight:900;margin:20px 0;">{delta:+,.0f} EUR</div><div style="color:#CCBBAA;font-size:12px;">sur le capital a 92 ans</div></div>'
+    comp_html += '</div>'
+    st.markdown(comp_html, unsafe_allow_html=True)
+
+    # Impact inflation
+    titre("4. Erosion du pouvoir d achat")
+    infl_html = '<div style="background:#1A0D12;border-radius:10px;padding:16px;"><table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    infl_html += '<tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Horizon</th><th style="text-align:right;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Rail nominal</th><th style="text-align:right;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Pouvoir achat reel</th><th style="text-align:right;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Perte</th></tr>'
+    for label, val in [("Aujourd hui", rail), ("Dans 10 ans", rail_reel_10), ("Dans 20 ans", rail_reel_20), ("A 92 ans (42 ans)", rail_reel_42)]:
+        perte = (1 - val/rail) * 100
+        infl_html += f'<tr style="border-bottom:1px solid #1A1A1A;"><td style="padding:6px 8px;color:#F0E6D8;">{label}</td><td style="text-align:right;padding:6px 8px;color:#CCBBAA;">{rail:,.0f} EUR</td><td style="text-align:right;padding:6px 8px;color:{"#4DFF99" if perte<20 else "#FF7777"};">{val:,.0f} EUR</td><td style="text-align:right;padding:6px 8px;color:{"#FFD060" if perte<20 else "#FF7777"};">-{perte:.0f}%</td></tr>'
+    infl_html += '</table></div>'
+    st.markdown(infl_html, unsafe_allow_html=True)
+
+    # Stress test
+    titre("5. Stress test — Le plan survit-il ?")
+    stress_scenarios = [
+        ("Normal 3,5%", 3.5, 2),
+        ("Rendement 2,8% (minimum)", 2.8, 2),
+        ("Crise 1,5%", 1.5, -10),
+        ("Stagflation 1%", 1.0, -3),
+        (f"Scenario actuel ({rend_ajuste:.1f}%)", rend_ajuste, immo_ajuste),
+    ]
+    stress_html = '<div style="background:#1A0D12;border-radius:10px;padding:16px;"><table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    stress_html += '<tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Scenario</th><th style="text-align:right;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">C92</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Statut</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Marge</th></tr>'
+    for s_name, s_rend, s_immo in stress_scenarios:
+        _, _, s_c92 = calc_c92(C, s_rend, rail, aah, loyer, s_immo)
+        ok = s_c92 >= 50000
+        marge_ans = 0
+        if s_c92 > 0:
+            marge_ans = s_c92 / (rail * 12)
+        statut = "VIABLE" if ok else ("RISQUE" if s_c92 > 0 else "ECHEC")
+        statut_col = "#4DFF99" if ok else ("#FFD060" if s_c92 > 0 else "#FF7777")
+        stress_html += f'<tr style="border-bottom:1px solid #1A1A1A;"><td style="padding:6px 8px;color:#F0E6D8;">{s_name}</td><td style="text-align:right;padding:6px 8px;color:{statut_col};font-weight:700;">{s_c92:,.0f} EUR</td><td style="text-align:center;padding:6px 8px;"><span style="color:{statut_col};font-weight:700;">{statut}</span></td><td style="text-align:center;padding:6px 8px;color:#CCBBAA;">{marge_ans:.1f} ans de reserve</td></tr>'
+    stress_html += '</table></div>'
+    st.markdown(stress_html, unsafe_allow_html=True)
+
+    # Conclusion
+    if C92_adj >= 50000:
+        alerte('vert', f"Le plan est VIABLE dans le scenario {choix_sc}. Capital a 92 ans : {C92_adj:,.0f} EUR (objectif 50 000 EUR).")
+    elif C92_adj > 0:
+        alerte('orange', f"Le plan est EN RISQUE dans le scenario {choix_sc}. Capital a 92 ans : {C92_adj:,.0f} EUR. Envisager une reduction du rail ou une hausse de rendement.")
+    else:
+        alerte('rouge', f"Le plan ECHOUE dans le scenario {choix_sc}. Capital epuise avant 92 ans. Actions urgentes : reduire depenses, augmenter rendement, trouver revenus complementaires.")
 
 
 def page_depenses(profil, cap):
@@ -2460,6 +2583,7 @@ button:hover, .stButton>button:hover {
             "Annexe - Reference",
             "Saisie capital",
             "Depenses",
+            "Macro economique",
         ])
         st.markdown("---")
         st.caption("v4.7 - Mars 2026")
@@ -2483,6 +2607,7 @@ button:hover, .stButton>button:hover {
         "Parametres":              lambda: page_parametres(profil,cap),
         "Saisie capital":          lambda: page_saisie(profil,cap),
         "Depenses":                lambda: page_depenses(profil,cap),
+        "Macro economique":        lambda: page_macro(profil,cap),
     }[page]()
 
 if __name__=="__main__":
