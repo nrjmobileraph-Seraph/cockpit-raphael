@@ -173,7 +173,7 @@ def save_capital(d):
          av1_date_ouverture,av2_date_ouverture,av3_date_ouverture,
          av1_versements,av2_versements,av3_versements,
          av1_rendement,av2_rendement,av3_rendement,note)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
         (date.today().isoformat(),
          d['cc'],d['livret_a'],d['ldds'],d['lep'],
          d['av1'],d['av2'],d['av3'],
@@ -186,8 +186,8 @@ def save_capital(d):
 def save_profil(d):
     conn = db_wrapper.connect()
     c = conn.cursor()
-    c.execute("""UPDATE profil SET aah_mensuel=?,pch_mensuel=?,loyer_net=?,
-        taux_mdph=?,rendement_annuel=?,rail_mensuel=?,updated=CURRENT_TIMESTAMP
+    c.execute("""UPDATE profil SET aah_mensuel=%s,pch_mensuel=%s,loyer_net=%s,
+        taux_mdph=%s,rendement_annuel=%s,rail_mensuel=%s,updated=CURRENT_TIMESTAMP
         WHERE id=1""",
         (d['aah'],d['pch'],d['loyer'],d['mdph'],d['rendement']/100,d['rail']))
     conn.commit()
@@ -196,7 +196,7 @@ def save_profil(d):
 def save_surplus(montant, destination, note):
     conn = db_wrapper.connect()
     c = conn.cursor()
-    c.execute("INSERT INTO surplus_affectation (montant,destination,note) VALUES (?,?,?)",
+    c.execute("INSERT INTO surplus_affectation (montant,destination,note) VALUES (%s,%s,%s)",
               (montant, destination, note))
     conn.commit()
     conn.close()
@@ -890,10 +890,10 @@ def get_lmnp():
 def save_lmnp(d):
     conn = db_wrapper.connect()
     c = conn.cursor()
-    c.execute("""UPDATE lmnp SET date_acquisition=?,valeur_acquisition=?,valeur_terrain=?,
-        travaux=?,loyer_brut_mensuel=?,charges_annuelles=?,
-        duree_amort_immeuble=?,duree_amort_mobilier=?,valeur_mobilier=?,
-        taux_irl_dernier=?,date_derniere_revalorisation=?,updated=CURRENT_TIMESTAMP
+    c.execute("""UPDATE lmnp SET date_acquisition=%s,valeur_acquisition=%s,valeur_terrain=%s,
+        travaux=%s,loyer_brut_mensuel=%s,charges_annuelles=%s,
+        duree_amort_immeuble=%s,duree_amort_mobilier=%s,valeur_mobilier=%s,
+        taux_irl_dernier=%s,date_derniere_revalorisation=%s,updated=CURRENT_TIMESTAMP
         WHERE id=1""",
         (d['date_acq'],d['val_acq'],d['terrain'],d['travaux'],
          d['loyer_brut'],d['charges'],d['amort_imm'],d['amort_mob'],
@@ -1052,7 +1052,7 @@ def page_lmnp(profil, cap):
             paye_d = st.number_input("Montant paye (EUR)", value=float(d['paye_montant']), key=f"pay_{d['id']}")
             if st.button("Enregistrer", key=f"sav_{d['id']}"):
                 db4 = db_wrapper.connect()
-                db4.execute("UPDATE devis_artisans SET artisan=?, devis_montant=?, statut=?, paye_montant=? WHERE id=?",
+                db4.execute("UPDATE devis_artisans SET artisan=%s, devis_montant=%s, statut=%s, paye_montant=%s WHERE id=%s",
                            (artisan, montant_d, statut_d, paye_d, d['id']))
                 db4.commit()
                 db4.close()
@@ -1068,7 +1068,7 @@ def page_lmnp(profil, cap):
         if st.button("Ajouter", key="add_corps"):
             if new_corps:
                 db5 = db_wrapper.connect()
-                db5.execute("INSERT INTO devis_artisans (corps_metier, note) VALUES (?,?)", (new_corps, new_note))
+                db5.execute("INSERT INTO devis_artisans (corps_metier, note) VALUES (%s,%s)", (new_corps, new_note))
                 db5.commit()
                 db5.close()
                 st.rerun()
@@ -1110,7 +1110,7 @@ def page_jalons(profil, cap):
                 dr_val = str(date_flux) if deja_fait else ''
                 db3.execute("""INSERT INTO chronologie
                     (date_cible, age_cible, action, montant, sens, categorie, auto, fait, note, montant_reel, date_reelle)
-                    VALUES (?,?,?,?,?,?,0,?,?,?,?)""",
+                    VALUES (%s,%s,%s,%s,%s,%s,0,%s,%s,%s,%s)""",
                     (str(date_flux), age_val, nom_flux, montant_flux, sens_flux, cat_flux, fait_val, note_flux, mr_val, dr_val))
                 db3.commit()
                 db3.close()
@@ -1154,13 +1154,13 @@ def page_jalons(profil, cap):
                     with c1:
                         if st.button("Confirmer", key=f"c1m_{r['id']}"):
                             db2 = db_wrapper.connect()
-                            db2.execute("UPDATE chronologie SET confirme_1mois=1, date_confirme_1mois=? WHERE id=?", (str(today), r['id']))
+                            db2.execute("UPDATE chronologie SET confirme_1mois=1, date_confirme_1mois=%s WHERE id=%s", (str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
                     with c2:
                         nv = st.number_input("Corriger montant", value=float(r.get('montant_reel', 0) or r['montant']), key=f"corr1_{r['id']}")
                         if st.button("Corriger", key=f"fix1_{r['id']}"):
                             db2 = db_wrapper.connect()
-                            db2.execute("UPDATE chronologie SET montant_reel=? WHERE id=?", (nv, r['id']))
+                            db2.execute("UPDATE chronologie SET montant_reel=%s WHERE id=%s", (nv, r['id']))
                             db2.commit(); db2.close(); st.rerun()
                 if jours >= 180 and r.get('confirme_6mois', 0) == 0:
                     st.error(f"VERROUILLAGE 6 MOIS : {r['action']} | Montant: {r.get('montant_reel',0):,.0f} EUR")
@@ -1168,13 +1168,13 @@ def page_jalons(profil, cap):
                     with c1:
                         if st.button("Verrouiller", key=f"c6m_{r['id']}"):
                             db2 = db_wrapper.connect()
-                            db2.execute("UPDATE chronologie SET confirme_6mois=1, date_confirme_6mois=? WHERE id=?", (str(today), r['id']))
+                            db2.execute("UPDATE chronologie SET confirme_6mois=1, date_confirme_6mois=%s WHERE id=%s", (str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
                     with c2:
                         nv6 = st.number_input("Derniere correction", value=float(r.get('montant_reel', 0) or r['montant']), key=f"corr6_{r['id']}")
                         if st.button("Corriger et verrouiller", key=f"fix6_{r['id']}"):
                             db2 = db_wrapper.connect()
-                            db2.execute("UPDATE chronologie SET montant_reel=?, confirme_6mois=1, date_confirme_6mois=? WHERE id=?", (nv6, str(today), r['id']))
+                            db2.execute("UPDATE chronologie SET montant_reel=%s, confirme_6mois=1, date_confirme_6mois=%s WHERE id=%s", (nv6, str(today), r['id']))
                             db2.commit(); db2.close(); st.rerun()
             except:
                 pass
@@ -1205,15 +1205,18 @@ def page_jalons(profil, cap):
                 st.write(f"**{flux_txt}**")
         with col3:
             if r['montant'] > 0:
-                pass
-            elif r['sens'] == 'info':
-                if st.button("MARQUER FAIT", key=f"fait_{r['id']}"):
+                if st.button("FAIT", key=f"fait_{r['id']}"):
                     db2 = db_wrapper.connect()
-                    db2.execute("UPDATE chronologie SET fait=1, date_reelle=? WHERE id=?", (str(today), r['id']))
+                    db2.execute("UPDATE chronologie SET fait=1, montant_reel=%s, date_reelle=%s WHERE id=%s", (r['montant'], str(today), r['id']))
+                    db2.commit(); db2.close(); st.rerun()
+            else:
+                if st.button("FAIT", key=f"fait_{r['id']}"):
+                    db2 = db_wrapper.connect()
+                    db2.execute("UPDATE chronologie SET fait=1, date_reelle=%s WHERE id=%s", (str(today), r['id']))
                     db2.commit(); db2.close(); st.rerun()
 
         if r['montant'] > 0:
-            with st.expander(f"Saisir le montant reel"):
+            with st.expander(f"Corriger le montant avant de valider"):
                 cd, cm = st.columns(2)
                 with cd:
                     date_r = st.date_input("Date reelle", value=today, key=f"dr_{r['id']}")
@@ -1226,9 +1229,9 @@ def page_jalons(profil, cap):
                         st.error(f"Ecart: {ecart:+,.0f} EUR ({pct:+.1f}%) - Verifiez le montant")
                     else:
                         st.warning(f"Ecart: {ecart:+,.0f} EUR ({pct:+.1f}%)")
-                if st.button("Valider", key=f"val_{r['id']}"):
+                if st.button("Valider avec correction", key=f"val_{r['id']}"):
                     db2 = db_wrapper.connect()
-                    db2.execute("UPDATE chronologie SET fait=1, montant_reel=?, date_reelle=? WHERE id=?", (montant_r, str(date_r), r['id']))
+                    db2.execute("UPDATE chronologie SET fait=1, montant_reel=%s, date_reelle=%s WHERE id=%s", (montant_r, str(date_r), r['id']))
                     db2.commit(); db2.close(); st.rerun()
         st.divider()
 
@@ -1250,7 +1253,7 @@ def page_jalons(profil, cap):
                 if not verrouille:
                     if st.button("ANNULER", key=f"undo_{r['id']}"):
                         db_u = db_wrapper.connect()
-                        db_u.execute("UPDATE chronologie SET fait=0, montant_reel=0, date_reelle='' WHERE id=?", (r['id'],))
+                        db_u.execute("UPDATE chronologie SET fait=0, montant_reel=0, date_reelle='' WHERE id=%s", (r['id'],))
                         db_u.commit()
                         db_u.close()
                         st.rerun()
@@ -1440,7 +1443,7 @@ def page_caf_pch(profil, cap):
         nouveau = st.number_input("Montant AAH mensuel reel (EUR)", value=float(reel if reel > 0 else prevu), key="aah_saisie")
         if st.button("Enregistrer AAH " + annee):
             db2 = db_wrapper.connect()
-            db2.execute("UPDATE aah_suivi SET montant_reel=?, date_saisie=? WHERE mois=?", (nouveau, str(today), annee))
+            db2.execute("UPDATE aah_suivi SET montant_reel=%s, date_saisie=%s WHERE mois=%s", (nouveau, str(today), annee))
             db2.commit()
             db2.close()
             st.success(f"AAH {annee} enregistree : {nouveau:,.0f} EUR/mois")
@@ -1701,9 +1704,9 @@ def page_parametres(profil, cap):
             if st.button("Etape 2 : JE CONFIRME la modification"):
                 db = db_wrapper.connect()
                 db.execute("""UPDATE profil SET
-                    rail_mensuel=?, aah_mensuel=?, loyer_net=?,
-                    rendement_annuel=?, age_cible=?, capital_cible=?,
-                    taux_mdph=?
+                    rail_mensuel=%s, aah_mensuel=%s, loyer_net=%s,
+                    rendement_annuel=%s, age_cible=%s, capital_cible=%s,
+                    taux_mdph=%s
                     WHERE id=1""",
                     (rail, aah, loyer, rendement/100, age_cible, capital_cible, taux_mdph))
                 db.commit()
@@ -1757,7 +1760,7 @@ def page_parametres(profil, cap):
                 db3.execute("""INSERT INTO capital
                     (date, cc, livret_a, ldds, lep, av1, av2, av3,
                      av1_rendement, av2_rendement, av3_rendement, note)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0.035, 0.035, 0.035, 'Modification parametres')""",
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0.035, 0.035, 0.035, 'Modification parametres')""",
                     (str(date.today()), cc, livret_a, ldds, lep, av1, av2, av3))
                 db3.commit()
                 db3.close()
@@ -1857,7 +1860,7 @@ def page_boursobank(profil, cap):
     cs = st.text_input("Client Secret Tink", value=old_cs, type="password")
     if st.button("Enregistrer les cles"):
         conn = db_wrapper.connect()
-        conn.execute("UPDATE tink_config SET client_id=?, client_secret=?, updated=CURRENT_TIMESTAMP WHERE id=1", (cid, cs))
+        conn.execute("UPDATE tink_config SET client_id=%s, client_secret=%s, updated=CURRENT_TIMESTAMP WHERE id=1", (cid, cs))
         conn.commit(); conn.close()
         st.success("Cles enregistrees !")
     if cid and cs:
