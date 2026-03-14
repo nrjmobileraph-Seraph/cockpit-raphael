@@ -1989,59 +1989,22 @@ Document généré par Cockpit Patrimonial Raphaël
 
 
 def page_boursobank(profil, cap):
-    import urllib.parse
-    titre("BoursoBank & Finary - Connexion Tink")
-    st.info("Ce module permet de connecter ton compte BoursoBank & Finary via Tink (DSP2).")
-    try:
-        conn = db_wrapper.connect()
-        c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS tink_config (id SERIAL PRIMARY KEY, client_id TEXT DEFAULT '', client_secret TEXT DEFAULT '', updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        conn.commit()
-        c.execute("SELECT id FROM tink_config")
-        if not c.fetchone():
-            c.execute("INSERT INTO tink_config (client_id, client_secret) VALUES ('', '')")
-            conn.commit()
-        c.execute("SELECT client_id, client_secret FROM tink_config WHERE id=1")
-        row = c.fetchone()
-        conn.close()
-        old_cid = dict(row).get('client_id', '') if row else ""
-        old_cs = dict(row).get('client_secret', '') if row else ""
-    except:
-        old_cid = ""
-        old_cs = ""
-    cid = st.text_input("Client ID Tink", value=old_cid)
-    cs = st.text_input("Client Secret Tink", value=old_cs, type="password")
-    if st.button("Enregistrer les cles"):
-        conn = db_wrapper.connect()
-        conn.execute("UPDATE tink_config SET client_id=%s, client_secret=%s, updated=CURRENT_TIMESTAMP WHERE id=1", (cid, cs))
-        conn.commit(); conn.close()
-        st.success("Cles enregistrees !")
-    if cid and cs:
-        redirect = "https://console.tink.com/callback"
-        tink_url = f"https://link.tink.com/1.0/transactions/connect-accounts?client_id={cid}&redirect_uri={urllib.parse.quote(redirect)}&market=FR&locale=fr_FR"
-        st.markdown(f'<a href="{tink_url}" target="_blank" style="display:inline-block;background:#1A6B4B;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;">Ouvrir Boursorama sur Tink</a>', unsafe_allow_html=True)
-    auth_code = st.text_input("Code Tink (depuis URL)")
-    if st.button("Synchroniser") and auth_code and cid and cs:
-        try:
-            import urllib.request, json
-            data = urllib.parse.urlencode({"client_id":cid,"client_secret":cs,"grant_type":"authorization_code","code":auth_code}).encode()
-            req = urllib.request.Request("https://api.tink.com/api/v1/oauth/token", data=data, headers={"Content-Type":"application/x-www-form-urlencoded"})
-            resp = urllib.request.urlopen(req, timeout=10)
-            token_data = json.loads(resp.read())
-            token = token_data.get("access_token","")
-            if not token:
-                st.error(f"Pas de token: {token_data}")
-            else:
-                req2 = urllib.request.Request("https://api.tink.com/api/v1/accounts/list", headers={"Authorization":f"Bearer {token}"})
-                resp2 = urllib.request.urlopen(req2, timeout=10)
-                accounts = json.loads(resp2.read())
-                if accounts.get("accounts"):
-                    for acc in accounts["accounts"]:
-                        st.success(f"{acc.get('name','?')} : {acc.get('balances',{}).get('booked',{}).get('amount',{}).get('value','?')}")
-                else:
-                    st.warning(f"Aucun compte. Debug: {accounts}")
-        except Exception as e:
-            st.error(f"Erreur: {e}")
+    titre("BOURSOBANK & FINARY")
+    st.markdown('<div style="background:#1A0D12;border:2px solid #C4922A;border-radius:12px;padding:20px;margin-bottom:16px;"><div style="color:#FFD060;font-size:16px;font-weight:700;margin-bottom:8px;">FINARY — Les yeux du cockpit</div><div style="color:#F0E6D8;font-size:13px;line-height:1.8;">Finary synchronise tous tes comptes automatiquement (banque, AV, PEA, livrets, crypto). Le cockpit lit Finary pour connaitre tes soldes. Tu n as rien a faire — Finary gere les connexions bancaires via DSP2.</div></div>', unsafe_allow_html=True)
+    titre("Comptes")
+    for nom, statut, col in [("BoursoBank (CC)", "Connecte", "#4DFF99"),("Linxea Spirit 2", "A ouvrir", "#FFD060"),("Lucya Cardif", "A ouvrir", "#FFD060"),("Lucya Abeille", "A ouvrir", "#FFD060"),("Linxea Avenir 2", "A ouvrir", "#FFD060"),("Boursorama Vie", "A ouvrir", "#FFD060"),("PEA Bourse Direct", "A ouvrir", "#FFD060")]:
+        st.markdown(f'<div style="display:flex;justify-content:space-between;background:#140810;border-left:3px solid {col};padding:8px 14px;margin:3px 0;border-radius:0 6px 6px 0;"><span style="color:#F0E6D8;">{nom}</span><span style="color:{col};font-weight:700;">{statut}</span></div>', unsafe_allow_html=True)
+    st.markdown('<div style="margin:16px 0;"><a href="https://app.finary.com" target="_blank" style="display:inline-block;background:#1A6B4B;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;">Ouvrir Finary</a></div>', unsafe_allow_html=True)
+    titre("Comment connecter un nouveau compte")
+    st.markdown("1. Ouvrir Finary (bouton ci-dessus)")
+    st.markdown("2. Cliquer Ajouter un compte")
+    st.markdown("3. Chercher ta banque ou assureur")
+    st.markdown("4. Entrer tes identifiants (securise DSP2)")
+    st.markdown("5. Le compte apparait dans Finary")
+    titre("Quand ouvrir les comptes")
+    st.markdown("- **Mars 2026** : Linxea Spirit 2 + Lucya Cardif + Lucya Abeille + PEA Bourse Direct")
+    st.markdown("- **Avril 2026** : Linxea Avenir 2 + Boursorama Vie")
+    st.markdown("- **A chaque ouverture** : connecter dans Finary dans la foulee")
 
 
 def page_crypto(profil, cap):
