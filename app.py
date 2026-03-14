@@ -598,21 +598,13 @@ def page_dashboard(profil, cap):
 
         # Budget mensuel reel
         titre("💶 BUDGET MENSUEL REEL")
-        b1, b2 = st.columns(2)
+        b1, b2, b3 = st.columns(3)
         with b1:
-            st.markdown(f"""<div style="background:#140810;border-radius:8px;padding:16px;">
-                <div style="color:#BBA888;font-size:11px;text-transform:uppercase;">REVENUS</div>
-                <div style="color:#F0E6D8;font-size:13px;margin-top:8px;">AAH : +{aah_reelle} EUR</div>
-                <div style="color:#F0E6D8;font-size:13px;">Loyers LMNP : +0 EUR (pas encore)</div>
-                <div style="color:#4DFF99;font-size:16px;font-weight:700;margin-top:8px;">Total : +{aah_reelle} EUR</div>
-            </div>""", unsafe_allow_html=True)
+            st.markdown('<div style="background:#140810;border-radius:8px;padding:16px;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">CE QUE JE RECOIS</div><div style="color:#F0E6D8;font-size:13px;margin-top:8px;">AAH (base 2024) : <b style="color:#4DFF99;">+625 EUR</b></div><div style="color:#F0E6D8;font-size:13px;">Loyers LMNP : <b style="color:#BBA888;">pas encore</b></div><div style="color:#CCBBAA;font-size:11px;margin-top:6px;">Loyers a partir de janvier 2027</div></div>', unsafe_allow_html=True)
         with b2:
-            st.markdown(f"""<div style="background:#140810;border-radius:8px;padding:16px;">
-                <div style="color:#BBA888;font-size:11px;text-transform:uppercase;">DEPENSES</div>
-                <div style="color:#F0E6D8;font-size:13px;margin-top:8px;">Versement parents : -{versement_parents} EUR</div>
-                <div style="color:#F0E6D8;font-size:13px;">Depenses perso : ~-200 EUR</div>
-                <div style="color:#FF7777;font-size:16px;font-weight:700;margin-top:8px;">Reste : ~{reste_vivre - 200} EUR</div>
-            </div>""", unsafe_allow_html=True)
+            st.markdown('<div style="background:#140810;border-radius:8px;padding:16px;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">CE QUE JE DONNE</div><div style="color:#F0E6D8;font-size:13px;margin-top:8px;">Parents : <b style="color:#FF7777;">-325 EUR</b></div><div style="color:#CCBBAA;font-size:11px;margin-top:6px;">Nourriture 250 + electricite 50 + eau 5 + TEOM 20</div></div>', unsafe_allow_html=True)
+        with b3:
+            st.markdown('<div style="background:#140810;border-radius:8px;padding:16px;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">IL ME RESTE</div><div style="color:#FFD060;font-size:28px;font-weight:900;margin-top:8px;">300 EUR</div><div style="color:#CCBBAA;font-size:11px;margin-top:6px;">Pour mes depenses personnelles</div></div>', unsafe_allow_html=True)
 
         # Countdown
         objectif = date(2027, 1, 15)
