@@ -369,7 +369,7 @@ def page_dashboard(profil, cap):
     # Planning chronologique avec solde cumule
     planning = [
         ('2026-03-12', 'Situation actuelle', 0, 'info'),
-        ('2026-04-15', 'Reception AV Jean-Luc', 34500, 'entree'),
+        ('2026-04-15', 'Reception AV Jean-Luc', 22800, 'entree'),
         ('2026-04-25', 'Donation usufruit MEYLAN', -3349, 'sortie'),
         ('2026-06-10', 'Virement net SCI', 296100, 'entree'),
         ('2026-06-30', 'Acompte travaux 30%', -9900, 'sortie'),
@@ -401,7 +401,9 @@ def page_dashboard(profil, cap):
     if phase_0:
         # === DASHBOARD PHASE 0 : CONSTRUCTION ===
         
-        # Budget jour et mois en haut
+        st.markdown('<div style="text-align:center;padding:30px 0 16px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2 0 2 6</span><span style="font-family:Garamond,Georgia,serif;font-size:44px;color:#665544;letter-spacing:10px;margin:0 30px;opacity:0.6;">&middot;&middot;&middot;</span><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2 0 6 7</span><br><span style="font-family:Garamond,Georgia,serif;font-size:28px;letter-spacing:8px;font-style:italic;background:linear-gradient(90deg, #665544, #BBA888, #C4922A, #BBA888, #665544);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">&mdash; 92 ans de plan, et au-dela ...</span></div>', unsafe_allow_html=True)
+
+        # Budget jour et mois
         import calendar
         _jdm = calendar.monthrange(today.year, today.month)[1]
         _bj = int(profil['rail_mensuel'] / _jdm)
@@ -410,7 +412,6 @@ def page_dashboard(profil, cap):
         _jr = _jdm - today.day + 1
         st.markdown(f'<div style="display:flex;gap:16px;margin-bottom:16px;"><div style="flex:1;background:#1A0D12;border:2px solid #4DFF99;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">BUDGET AUJOURD HUI</div><div style="color:#4DFF99;font-size:36px;font-weight:900;">{_bj} EUR</div><div style="color:#CCBBAA;font-size:12px;">par jour</div></div><div style="flex:1;background:#1A0D12;border:2px solid #FFD060;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">RESTE CE MOIS</div><div style="color:#FFD060;font-size:36px;font-weight:900;">{_rm} EUR</div><div style="color:#CCBBAA;font-size:12px;">sur {_jr} jours</div></div></div>', unsafe_allow_html=True)
 
-        st.markdown('<div style="text-align:center;padding:30px 0 16px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2 0 2 6</span><span style="font-family:Garamond,Georgia,serif;font-size:44px;color:#665544;letter-spacing:10px;margin:0 30px;opacity:0.6;">&middot;&middot;&middot;</span><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2 0 6 7</span><br><span style="font-family:Garamond,Georgia,serif;font-size:28px;letter-spacing:8px;font-style:italic;background:linear-gradient(90deg, #665544, #BBA888, #C4922A, #BBA888, #665544);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">&mdash; 92 ans de plan, et au-dela ...</span></div>', unsafe_allow_html=True)
         titre("COCKPIT PATRIMONIAL - PHASE CONSTRUCTION")
 
         # Capital reel cumule depuis les jalons
@@ -1944,10 +1945,10 @@ def page_annexe(profil, cap):
     st.write("Actif net hors AV : 493 000 EUR | Part heritier (div 2) : 246 500 EUR")
     st.write("Abattement neveu : -7 967 EUR | Abattement handicap : -159 325 EUR | Base taxable : 79 208 EUR")
     st.write("Droits 55% : -43 564 EUR | Net apres droits : 202 936 EUR")
-    st.write("AV Jean-Luc (art 990 I, 0 EUR impot) : +34 500 EUR")
+    st.write("AV Jean-Luc (art 990 I, 0 EUR impot) : +22 800 EUR")
     st.write("Frais (notaire + agences + diag + charges + debarras) : -20 020 EUR")
     st.write("**NET SUCCESSION RAPHAEL : 217 400 EUR**")
-    st.write("Flux : AV +34 500 EUR en avril | Virement notaire +182 900 EUR en juillet")
+    st.write("Flux : AV +22 800 EUR en avril | Virement notaire +182 900 EUR en juillet")
     st.error("CONFIRMER abattement handicap co-heritiere Anne-Lyse aupres du notaire. Sans abattement : ses droits = 131 193 EUR.")
     st.divider()
     st.write("**Prix planchers vente (frais caches integres)**")
@@ -1965,7 +1966,7 @@ def page_annexe(profil, cap):
     st.success("Base imposable = 0 EUR jusqu en 2051 (amortissements > resultat)")
 
     st.subheader("4. CAPITAL TOTAL")
-    st.write("SCI nette : +296 100 | AV Jean-Luc : +34 500 | Succession nette : +182 900 = **+513 500 EUR**")
+    st.write("SCI nette : +296 100 | AV Jean-Luc : +22 800 | Succession nette : +182 900 = **+501 800 EUR**")
     st.write("Donation usufruit : -3 349 | Travaux : -33 000 | Mobilier : -15 000 | Charges : -1 075 = **-52 424 EUR**")
     st.write("**CAPITAL NET : 461 000 EUR | PATRIMOINE TOTAL : 680 000 EUR**")
     st.divider()
