@@ -55,13 +55,12 @@ section.main button:hover {
     color: #FFD060 !important;
 }
 .stException {display:none !important}
-.stAlert {display:none !important}
-[data-testid="stNotification"] {display:none !important}
 .element-container:has(.stException) {display:none !important}
+.stMarkdown:has(pre:first-child) + .element-container:has(.stException) {display:none !important}
 pre, code, .stCodeBlock, [data-testid="stCode"] {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 .stException, [data-testid="stException"], .element-container iframe[title="streamlit_js_eval.streamlit_js_eval"] {display:none !important;}
-div[data-testid="stNotification"][data-type="error"] {display:none !important;}
-.stAlert[data-baseweb="notification"] {display:none !important;}
+
+
 pre, code, .stCodeBlock {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 </style>""", unsafe_allow_html=True)
 
@@ -434,14 +433,26 @@ def page_dashboard(profil, cap):
                 if rj['sens'] == 'entree': capital_reel += mr
                 elif rj['sens'] == 'sortie': capital_reel -= mr
         objectif_capital = 461000
-        pct = int(capital_reel / objectif_capital * 100) if objectif_capital > 0 else 0
-        barre_col = "#4DFF99" if pct >= 80 else ("#FFD060" if pct >= 30 else "#FF7777")
-        cr1, cr2 = st.columns([2, 1])
-        with cr1:
-            st.metric("CAPITAL REEL CUMULE", f"{capital_reel:,.0f} EUR", delta=f"{pct}% de l objectif")
-        with cr2:
-            st.metric("OBJECTIF JANVIER 2027", f"{objectif_capital:,.0f} EUR")
-        st.progress(min(pct, 100))
+        if 'masquer_objectif' not in st.session_state:
+            st.session_state.masquer_objectif = False
+        if not st.session_state.masquer_objectif:
+            pct = int(capital_reel / objectif_capital * 100) if objectif_capital > 0 else 0
+            barre_col = "#4DFF99" if pct >= 80 else ("#FFD060" if pct >= 30 else "#FF7777")
+            cr1, cr2, cr3 = st.columns([3, 2, 1])
+            with cr1:
+                st.metric("CAPITAL REEL CUMULE", f"{capital_reel:,.0f} EUR", delta=f"{pct}% de l objectif")
+            with cr2:
+                st.metric("OBJECTIF JANVIER 2027", f"{objectif_capital:,.0f} EUR")
+            with cr3:
+                if st.button("Masquer", key="hide_obj"):
+                    st.session_state.masquer_objectif = True
+                    st.rerun()
+            st.progress(min(pct, 100))
+        else:
+            st.markdown(f'<div style="text-align:center;margin:16px 0;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">CAPITAL REEL CUMULE</div><div style="color:#FFD060;font-size:42px;font-weight:900;">{capital_reel:,.0f} EUR</div></div>', unsafe_allow_html=True)
+            if st.button("Afficher objectif", key="show_obj"):
+                st.session_state.masquer_objectif = False
+                st.rerun()
 
         # AAH reelle (625 en 2026-2027, pas 1033)
         aah_reelle = 625
@@ -1962,7 +1973,7 @@ def page_annexe(profil, cap):
     st.subheader("1. COMMENT CA MARCHE ?")
     st.write("""Le cockpit gere ton patrimoine sur 42 ans (2026-2067). Il suit le capital, les revenus (AAH, loyers), les charges, et calcule chaque mois combien piocher. En Phase 0 (maintenant), il suit la construction du capital. En Phase 3 (janvier 2027+), il pilote la rente.""")
 
-    st.subheader("2. D OU VIENT L ARGENT ?")
+    st.subheader("2. D'OU VIENT L'ARGENT ?")
     st.write("**SCI du Pont de la Balme**")
     st.write("Prix vente signe : 433 000 EUR | Commission agent 6% : -26 000 EUR | Net vendeur : 407 000 EUR")
     st.write("PV brute : 246 717 EUR | IR 19% : 0 EUR (exonere > 22 ans) | PS 17,2% sur 72% : -30 553 EUR")
@@ -1988,7 +1999,7 @@ def page_annexe(profil, cap):
 
     st.subheader("3. MEYLAN - LMNP")
     st.write("**Donation usufruit :** mere 81 ans, usufruit 20% = 33 200 EUR | Droits : 0 EUR | Frais notaire : 3 349 EUR")
-    st.write("**Investissement :** donation 3 349 + travaux 33 000 + mobilier 15 000 = **51 349 EUR**")
+    st.write("**Investissement :** donation 3 349 + travaux 33 000 + mobilier 10 000 = **46 349 EUR**")
     st.write("**Valeur apres travaux :** appart 199 000 + garage 20 000 = **219 000 EUR**")
     st.write("**Recettes :** loyer 800 CC x 9,7 mois + garage 110 x 9,7 = **8 827 EUR/an**")
     st.write("**Charges :** agence 794 + copro 280 + TF 950 + PNO 190 + entretien 1 990 + CFE 300 + comptable 400 + elec 80 = **4 984 EUR/an**")
@@ -1998,7 +2009,7 @@ def page_annexe(profil, cap):
 
     st.subheader("4. CAPITAL TOTAL")
     st.write("SCI nette : +296 100 | AV Jean-Luc : +22 800 | Succession nette : +182 900 = **+501 800 EUR**")
-    st.write("Donation usufruit : -3 349 | Travaux : -33 000 | Mobilier : -15 000 | Charges : -1 075 = **-52 424 EUR**")
+    st.write("Donation usufruit : -3 349 | Travaux : -33 000 | Mobilier : -10 000 | Charges : -1 075 = **-47 424 EUR**")
     st.write("**CAPITAL NET : 461 000 EUR | PATRIMOINE TOTAL : 680 000 EUR**")
     st.divider()
     st.write("**Repartition capital :**")
@@ -2055,27 +2066,10 @@ button:hover, .stButton>button:hover {
     box-shadow: 0 0 25px rgba(196,146,42,0.8) !important;
 }
 </style>''', unsafe_allow_html=True)
-        st.markdown('''<style>
-button, .stButton>button, div.stButton>button, [data-testid="stButton"]>button {
-    background: #2A0A12 !important;
-    color: #FFD060 !important;
-    border: 2px solid #C4922A !important;
-    font-size: 22px !important;
-    font-weight: 800 !important;
-    padding: 14px 40px !important;
-    border-radius: 10px !important;
-}
-button:hover, .stButton>button:hover {
-    background: #3A0A15 !important;
-    color: #FFFFFF !important;
-    border: 2px solid #FFD060 !important;
-    box-shadow: 0 0 25px rgba(196,146,42,0.8) !important;
-}
-</style>''', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;padding:80px 0 20px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">COCKPIT</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;"><span style="font-family:Garamond,Georgia,serif;font-size:28px;letter-spacing:10px;background:linear-gradient(90deg, #665544, #BBA888, #C4922A, #BBA888, #665544);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">P A T R I M O N I A L</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;padding:30px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:18px;color:#BBA888;font-style:italic;letter-spacing:4px;">2026 &middot;&middot;&middot; 2067</span></div>', unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;padding:0 0 40px 0;"><span style="font-family:Georgia,serif;font-size:14px;color:#665544;">v4.3 &mdash; Raphael</span></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;padding:0 0 40px 0;"><span style="font-family:Georgia,serif;font-size:14px;color:#665544;">v4.7 &mdash; Raphael</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
         c1, c2, c3 = st.columns([3, 2, 3])
         with c2:
@@ -2101,7 +2095,7 @@ button:hover, .stButton>button:hover {
             st.session_state.sidebar_state = "expanded"
             st.rerun()
     else:
-        st.markdown(f'<style>section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;width:300px!important;min-width:300px!important;}}section[data-testid="stSidebarUserContent"]{{padding-top:5rem!important;}}button[data-testid="stBaseButton-headerNoPadding"]{{display:none!important;}}section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{TOGGLE_BTN}}}</style>', unsafe_allow_html=True)
+        st.markdown(f'<style>section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;width:300px!important;min-width:300px!important;}}section[data-testid="stSidebarUserContent"]{{padding-top:5.5rem!important;}}button[data-testid="stBaseButton-headerNoPadding"]{{display:none!important;}}section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{TOGGLE_BTN}}}</style>', unsafe_allow_html=True)
     with st.sidebar:
         if st.button("\u276E", key="close_sb"):
             st.session_state.sidebar_state = "collapsed"
@@ -2130,35 +2124,35 @@ button:hover, .stButton>button:hover {
             "Suivi AV x 3 contrats",
             "Scenarios simulateurs",
             "Fiscal & CAF",
-            "Declaration impots",
+            "Impots & Declarations",
             "LMNP (Location Meublee) & IRL",
             "Jalons & Actions",
             "AAH / CAF / PCH (Allocations)",
             "Inflation",
             "Succession",
             "Mode Senior",
-            "Bilan d exportation",
+            "Export Bilan",
             "BoursoBank",
             "Crypto",
             "Annexe - Reference",
             "Parametres","Saisie capital",
         ])
         st.markdown("---")
-        st.caption("v4.3 - Mars 2026")
+        st.caption("v4.7 - Mars 2026")
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
         "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
         "Suivi AV x 3 contrats": lambda: page_suivi_av(profil,cap),
         "Scenarios simulateurs": lambda: page_simulateur(profil,cap),
         "Fiscal & CAF":          lambda: page_fiscal(profil,cap),
-        "Declaration impots":    lambda: page_impots(profil,cap),
+        "Impots & Declarations":    lambda: page_impots(profil,cap),
         "LMNP (Location Meublee) & IRL":            lambda: page_lmnp(profil,cap),
         "Jalons & Actions":       lambda: page_jalons(profil,cap),
         "AAH / CAF / PCH (Allocations)":       lambda: page_caf_pch(profil,cap),
         "Inflation":              lambda: page_inflation(profil,cap),
         "Succession":             lambda: page_succession(profil,cap),
         "Mode Senior":            lambda: page_senior(profil,cap),
-        "Bilan d exportation":    lambda: page_export(profil,cap),
+        "Export Bilan":    lambda: page_export(profil,cap),
         "BoursoBank":             lambda: page_boursobank(profil,cap),
         "Crypto":                  lambda: page_crypto(profil,cap),
         "Annexe - Reference":      lambda: page_annexe(profil,cap),
