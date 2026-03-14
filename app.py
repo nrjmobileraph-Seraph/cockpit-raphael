@@ -19,6 +19,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+
+st.markdown('<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><meta name="theme-color" content="#1A0D12"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Cockpit Patrimonial"><link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQ29ja3BpdCBQYXRyaW1vbmlhbCIsInNob3J0X25hbWUiOiJDb2NrcGl0Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxQTBEMTIiLCJ0aGVtZV9jb2xvciI6IiMxQTBEMTIifQ==">', unsafe_allow_html=True)
+
 st.markdown("""<style>
 /* FORCE TOUS LES BOUTONS - BORDEAUX OR */
 .stButton button,
@@ -1889,6 +1892,29 @@ def page_parametres(profil, cap):
                 st.session_state.cap_confirm = 0
                 st.rerun()
 
+
+    st.divider()
+    st.subheader("Son et video d intro")
+    st.caption("Uploadez un fichier MP3 pour le son et/ou MP4 pour la video. Ils seront joues sur l ecran de connexion.")
+    son = st.file_uploader("Son d intro (MP3)", type=["mp3"], key="upload_son")
+    if son:
+        st.session_state['intro_son'] = son.read()
+        st.audio(st.session_state['intro_son'], format='audio/mp3')
+        st.success("Son charge !")
+    if st.session_state.get('intro_son'):
+        if st.button("Supprimer le son"):
+            del st.session_state['intro_son']
+            st.rerun()
+    video = st.file_uploader("Video d intro (MP4)", type=["mp4"], key="upload_video")
+    if video:
+        st.session_state['intro_video'] = video.read()
+        st.video(st.session_state['intro_video'], format='video/mp4')
+        st.success("Video chargee !")
+    if st.session_state.get('intro_video'):
+        if st.button("Supprimer la video"):
+            del st.session_state['intro_video']
+            st.rerun()
+
     st.divider()
     st.subheader("Backup et restauration")
     st.info('Les donnees sont hebergees sur Supabase (PostgreSQL cloud). Les backups sont geres automatiquement.')
@@ -2036,9 +2062,63 @@ def page_crypto(profil, cap):
 
 
 
+
+def page_placements(profil, cap):
+    titre("MODULE PLACEMENTS — 46 TYPES ANALYSES")
+    C = capital_total(cap)
+    st.markdown('<div style="background:#1A0D12;border:2px solid #C4922A;border-radius:12px;padding:20px;margin-bottom:16px;"><div style="color:#FFD060;font-size:16px;font-weight:700;margin-bottom:8px;">ALLOCATION OPTIMALE — 460 000 EUR</div><div style="color:#F0E6D8;font-size:13px;line-height:1.8;">Repartition recommandee apres analyse de 46 types de placements. Rendement global pondere : 4,05%/an. Objectif : securite + performance + liquidite.</div></div>', unsafe_allow_html=True)
+    titre("1. Repartition du capital")
+    alloc = [("Livrets reglementes (LEP+LA+LDDS)", "44 950", "2,8%", "1/10", "Immediate", "Matelas securite 18 mois"),("Fonds euros AV (7 contrats)", "230 000", "3,0-3,5%", "1/10", "72h", "Coeur securise du plan"),("ETF World en AV", "92 000", "7-8%", "6/10", "72h", "Performance long terme"),("SCPI en AV", "46 000", "4,5%", "4/10", "3-6 mois", "Immobilier sans gestion"),("PEA ETF World", "30 000", "7-8%", "6/10", "3 jours", "Fiscalite 0% apres 5 ans"),("Crowdfunding immo", "10 000", "8-10%", "7/10", "Bloque 12-36 mois", "Rendement eleve, diversifie"),("Or physique/ETF", "5 000", "2-4%", "3/10", "Variable", "Protection inflation"),("Crypto (BTC spot)", "2 050", "Variable", "9/10", "Immediate", "Asymetrie rendement"),("Epargne handicap", "Inclus AV", "3,5%", "1/10", "72h", "Rente exoneree AAH/ASPA")]
+    table_alloc = '<div style="background:#1A0D12;border-radius:10px;padding:16px;overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Categorie</th><th style="text-align:right;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Montant</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Rendement</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Risque</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Liquidite</th><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Role</th></tr>'
+    for cat, mt, rend, risq, liq, role in alloc:
+        table_alloc += f'<tr style="border-bottom:1px solid #1A1A1A;"><td style="padding:6px 8px;color:#F0E6D8;font-weight:600;">{cat}</td><td style="text-align:right;padding:6px 8px;color:#4DFF99;">{mt} EUR</td><td style="text-align:center;padding:6px 8px;color:#FFD060;">{rend}</td><td style="text-align:center;padding:6px 8px;color:#CCBBAA;">{risq}</td><td style="text-align:center;padding:6px 8px;color:#CCBBAA;">{liq}</td><td style="padding:6px 8px;color:#BBA888;font-size:11px;">{role}</td></tr>'
+    table_alloc += '</table></div>'
+    st.markdown(table_alloc, unsafe_allow_html=True)
+    titre("2. Les 5 poches detaillees")
+    with st.expander("LIVRETS — 44 950 EUR"):
+        st.markdown("LEP 10 000 EUR (4% net) + Livret A 22 950 EUR (3% net) + LDDS 12 000 EUR (3% net). Matelas de securite = 18 mois de rail. Ne JAMAIS descendre en dessous.")
+    with st.expander("FONDS EUROS AV — 230 000 EUR sur 7 contrats"):
+        st.markdown("Max 70 000 EUR par assureur (FGAP). Linxea Spirit 2, Lucya Cardif, Lucya Abeille, Linxea Avenir 2, Placement-direct Vie, Boursorama Vie, Corum Life. Rendement moyen 3,2% net.")
+    with st.expander("ETF WORLD en AV — 92 000 EUR"):
+        st.markdown("20% du capital en ETF MSCI World ou S&P500 dans les AV. Horizon 10+ ans. Volatilite elevee mais rendement historique 8%/an. Repartir sur 3-4 contrats AV.")
+    with st.expander("SCPI en AV — 46 000 EUR"):
+        st.markdown("10% en SCPI via Linxea Spirit 2 (100% loyers reverses). Corum Origin, Remake Live, Iroko Zen. Rendement 4,5-5%. Pas de gestion, pas de locataire.")
+    with st.expander("PEA — 30 000 EUR"):
+        st.markdown("ETF World sur PEA Boursorama. Apres 5 ans : 0% IR, seulement PS 17,2%. Complement ideal aux AV. Ne pas depasser 150 000 EUR de versements.")
+    titre("3. Placements NON retenus (19)")
+    non_retenus = ["PER (inutile si IR=0)", "Girardin/SOFICA/FIP/FCPI (avantage fiscal = 0 si IR=0)", "PEL (1% bloque = ridicule)", "Livret jeune (age depasse)", "Assurance-vie luxembourgeoise (minimum 250k, complexe)", "Produits structures (opacite, frais caches)", "EMTN (reserve aux pros)", "Fonds de dettes privees (illiquide)", "Viager inverse (pas proprietaire)", "Royalties musicales (tres speculatif)", "NFT (aucune valeur intrinsèque)", "Forex/Warrants/Turbos (jeu de casino)", "Leasing materiel (pas adapte)", "Brevets/PI (trop complexe)", "Stablecoins DeFi (risque smart contract)", "Peer-to-peer international (non regule)", "Contrat capitalisation luxembourgeois (minimum eleve)", "Metaux hors or (illiquide)", "Matieres premieres (trop volatile)"]
+    for p in non_retenus:
+        st.markdown(f"- {p}")
+    titre("4. Stress tests")
+    stress = [("Base 4%", 4.0), ("Optimiste 5,5%", 5.5), ("Bourse -30%", 2.5), ("Immobilier -20%", 3.0), ("Pessimiste 2%", 2.0), ("Inflation 5%", 1.5)]
+    stress_html = '<div style="background:#1A0D12;border-radius:10px;padding:16px;"><table style="width:100%;border-collapse:collapse;font-size:13px;"><tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Scenario</th><th style="text-align:right;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">C92</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Statut</th></tr>'
+    rail = profil["rail_mensuel"]
+    aah = profil["aah_mensuel"]
+    loyer = profil["loyer_net"]
+    for s_name, s_rend in stress:
+        r_m = (1 + s_rend/100) ** (1/12) - 1
+        def A(n, rr=s_rend): return ((1+rr/100)**n - 1) / ((1+rr/100)**(1/12)-1) if (1+rr/100)**(1/12)-1 > 0 else n
+        def P(n, rr=s_rend): return (1+rr/100)**n
+        pp1 = rail - aah - loyer
+        immo = 205000 * 1.015**14
+        C64 = C*P(14) - pp1*A(14) + immo
+        C75 = C64*P(11) - rail*A(11)
+        s_c92 = C75*P(17) - (rail-450)*A(17)
+        ok = s_c92 >= 50000
+        col = "#4DFF99" if ok else ("#FFD060" if s_c92 > 0 else "#FF7777")
+        statut = "VIABLE" if ok else ("RISQUE" if s_c92 > 0 else "ECHEC")
+        stress_html += f'<tr style="border-bottom:1px solid #1A1A1A;"><td style="padding:6px 8px;color:#F0E6D8;">{s_name}</td><td style="text-align:right;padding:6px 8px;color:{col};font-weight:700;">{s_c92:,.0f} EUR</td><td style="text-align:center;padding:6px 8px;color:{col};font-weight:700;">{statut}</td></tr>'
+    stress_html += '</table></div>'
+    st.markdown(stress_html, unsafe_allow_html=True)
+    titre("5. Plan d action immediat")
+    actions = [("1", "Ouvrir 3 AV maintenant (500 EUR chacune) — Linxea Spirit 2, Lucya Cardif, Linxea Avenir 2"),("2", "Ouvrir PEA Boursorama (versement initial 500 EUR)"),("3", "Remplir LEP au plafond (10 000 EUR)"),("4", "Quand fonds arrivent : repartir selon allocation ci-dessus"),("5", "Ouvrir Linxea Avenir 2 EN EPARGNE HANDICAP"),("6", "Acheter 2 050 EUR de BTC spot sur plateforme PSAN (OKX ou Binance)"),("7", "Crowdfunding : 10 x 1 000 EUR sur Homunity et ClubFunding")]
+    for num, act in actions:
+        st.markdown(f'<div style="background:#140810;border-left:3px solid #C4922A;padding:8px 14px;margin:4px 0;border-radius:0 6px 6px 0;"><span style="color:#FFD060;font-weight:700;">Etape {num}</span> <span style="color:#F0E6D8;">{act}</span></div>', unsafe_allow_html=True)
+    st.markdown('<div style="background:#0A2010;border:2px solid #4DFF99;border-radius:10px;padding:16px;margin:16px 0;"><div style="color:#4DFF99;font-size:15px;font-weight:700;">EPARGNE HANDICAP (art. 199 septies CGI)</div><div style="color:#F0E6D8;font-size:13px;margin-top:8px;">Ouvrir Linxea Avenir 2 en contrat Epargne Handicap. Les prelevements sociaux (17,2%) ne sont preleves qu au rachat, pas chaque annee. Les rentes sont exonerees du calcul AAH et ASPA. Sur 40 ans, c est des dizaines de milliers d euros de difference.</div></div>', unsafe_allow_html=True)
+
 def page_annexe(profil, cap):
     st.subheader("ANNEXE — REFERENCE COMPLETE")
-    st.caption("Document de reference — v4.7 — 14 mars 2026")
+    st.caption("Document de reference — v4.8 — 14 mars 2026")
 
     def tableau(titre_t, headers, rows, note=""):
         html = f'<div style="margin:16px 0;"><div style="color:#FFD060;font-size:15px;font-weight:700;margin-bottom:8px;">{titre_t}</div>'
@@ -2515,11 +2595,15 @@ button:hover, .stButton>button:hover {
         st.markdown('<div style="text-align:center;padding:80px 0 20px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">COCKPIT</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;"><span style="font-family:Garamond,Georgia,serif;font-size:28px;letter-spacing:10px;background:linear-gradient(90deg, #665544, #BBA888, #C4922A, #BBA888, #665544);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">P A T R I M O N I A L</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;padding:30px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:18px;color:#BBA888;font-style:italic;letter-spacing:4px;">2026 &middot;&middot;&middot; 2067</span></div>', unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;padding:0 0 40px 0;"><span style="font-family:Georgia,serif;font-size:14px;color:#665544;">v4.7 &mdash; Raphael</span></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;padding:0 0 40px 0;"><span style="font-family:Georgia,serif;font-size:14px;color:#665544;">v4.8 &mdash; Raphael</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
         c1, c2, c3 = st.columns([3, 2, 3])
         with c2:
             st.markdown('<div style="text-align:center;margin-bottom:10px;font-family:Garamond,Georgia,serif;font-size:12px;color:#665544;letter-spacing:3px;">Cliquez pour entrer</div>', unsafe_allow_html=True)
+            if st.session_state.get('intro_video'):
+                st.video(st.session_state['intro_video'], format='video/mp4')
+            if st.session_state.get('intro_son'):
+                st.audio(st.session_state['intro_son'], format='audio/mp3')
             if st.button("C O N N E X I O N", use_container_width=True):
                 st.session_state.connected = True
                 st.rerun()
@@ -2584,9 +2668,10 @@ button:hover, .stButton>button:hover {
             "Saisie capital",
             "Depenses",
             "Macro economique",
+            "Placements",
         ])
         st.markdown("---")
-        st.caption("v4.7 - Mars 2026")
+        st.caption("v4.8 - Mars 2026")
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
         "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
@@ -2608,6 +2693,7 @@ button:hover, .stButton>button:hover {
         "Saisie capital":          lambda: page_saisie(profil,cap),
         "Depenses":                lambda: page_depenses(profil,cap),
         "Macro economique":        lambda: page_macro(profil,cap),
+        "Placements":              lambda: page_placements(profil,cap),
     }[page]()
 
 if __name__=="__main__":
