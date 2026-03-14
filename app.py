@@ -56,7 +56,9 @@ section.main button:hover {
 }
 .stException {display:none !important}
 .element-container:has(.stException) {display:none !important}
-.stMarkdown:has(pre:first-child) + .element-container:has(.stException) {display:none !important}
+[data-testid="stException"] {display:none !important}
+div[class*="stException"] {display:none !important}
+div:has(> [data-testid="stException"]) {display:none !important}
 pre, code, .stCodeBlock, [data-testid="stCode"] {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 .stException, [data-testid="stException"], .element-container iframe[title="streamlit_js_eval.streamlit_js_eval"] {display:none !important;}
 
@@ -156,6 +158,20 @@ st.markdown("""
   .stTabs [aria-selected="true"] { color: #FFD060 !important; }
 </style>
 """, unsafe_allow_html=True)
+
+# Cacher les erreurs JavaScript NotFoundError
+st.markdown("""<script>
+function hideJSErrors() {
+    document.querySelectorAll('pre').forEach(el => {
+        if (el.textContent && (el.textContent.includes('NotFoundError') || el.textContent.includes('at Fc') || el.textContent.includes('at ir (') || el.textContent.includes('at Mc ('))) {
+            var parent = el.closest('.element-container') || el.parentElement;
+            if (parent) parent.style.display = 'none';
+            el.style.display = 'none';
+        }
+    });
+}
+setInterval(hideJSErrors, 500);
+</script>""", unsafe_allow_html=True)
 
 def init_db():
     pass
@@ -776,7 +792,10 @@ def page_simulateur(profil, cap):
             fig.update_layout(plot_bgcolor='#140810',paper_bgcolor='#140810',font_color='#CCC',
                 height=320,margin=dict(t=20,b=0,l=0,r=0),yaxis=dict(gridcolor='#2A0A12'))
             st.plotly_chart(fig,width='stretch')
-        except: pass
+        except:
+            for s in sc:
+                coul = "vert" if s[1] >= 50000 else "rouge"
+                kpi(s[0], f"{s[1]:,.0f} EUR", "", coul)
 
 def page_impots(profil, cap):
     titre("📄 DÉCLARATION D'IMPÔTS — RÉCAPITULATIF")
@@ -2003,7 +2022,7 @@ def page_annexe(profil, cap):
     st.error("CONFIRMER abattement handicap co-heritiere Anne-Lyse aupres du notaire. Sans abattement : ses droits = 131 193 EUR.")
     st.divider()
     st.write("**Prix planchers vente (frais caches integres)**")
-    st.write("Maison La Ravoire : **207 000 EUR minimum** (200k + 7k frais caches)")
+    st.write("Maison La Ravoire : **215 000 EUR minimum** (plancher absolu avant frais)")
     st.write("Appart Bassens : **290 000 EUR minimum** (marge neuf couvre les frais)")
 
     st.subheader("3. MEYLAN - LMNP")
