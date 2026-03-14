@@ -729,6 +729,40 @@ def page_suivi_av(profil, cap):
     titre("Stratégie rachat — 1er janvier")
     st.markdown("1. **AV1** → cristalliser 4 600€ PV → IR = 0€ · PS 17,2% si PV > abattement\n2. Si AV2 ≥ 8 ans (après 2034) → 4 600€ supplémentaires\n3. Vérifier marge CAF avant chaque rachat\n4. Réinvestir la part capital immédiatement → nouveau prix de revient")
 
+    titre("PLANIFICATION OUVERTURE AV")
+    st.markdown('<div style="background:#1A0D12;border:2px solid #C4922A;border-radius:12px;padding:20px;margin:12px 0;"><div style="color:#FFD060;font-size:16px;font-weight:700;margin-bottom:12px;">POURQUOI OUVRIR MAINTENANT ?</div><div style="color:#F0E6D8;font-size:13px;line-height:1.8;">Le compteur des 8 ans demarre a l ouverture. Plus on ouvre tot, plus vite on beneficie de l abattement 4 600 EUR/an sur les plus-values. Avec IR = 0 toute la vie, l objectif est de maximiser les abattements pour ne payer que les PS (17,2%).</div></div>', unsafe_allow_html=True)
+    av_options = [
+        ("Fonds euros securise", "1,5-3%", "Capital garanti, rendement faible", "Securite"),
+        ("UC Obligations", "3-5%", "Moyen terme, volatilite moderee", "Equilibre"),
+        ("UC Actions (ETF World)", "6-8%", "Long terme, volatilite elevee", "Performance"),
+        ("SCPI en AV", "4-5%", "Immobilier, pas de gestion", "Diversification"),
+        ("Gestion pilotee prudente", "3-4%", "Automatique, profil prudent", "Simplicite"),
+    ]
+    table_av = '<div style="background:#1A0D12;border-radius:10px;padding:16px;margin:8px 0;"><table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    table_av += '<tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Support</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Rendement</th><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Risque</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Objectif</th></tr>'
+    for nom_av, rend, risque, obj in av_options:
+        table_av += f'<tr><td style="padding:6px 8px;color:#F0E6D8;border-bottom:1px solid #1A1A1A;">{nom_av}</td><td style="text-align:center;padding:6px 8px;color:#4DFF99;">{rend}</td><td style="padding:6px 8px;color:#CCBBAA;">{risque}</td><td style="text-align:center;padding:6px 8px;color:#FFD060;">{obj}</td></tr>'
+    table_av += '</table></div>'
+    st.markdown(table_av, unsafe_allow_html=True)
+
+    assureurs = [
+        ("Linxea Spirit 2", "Spirica", "0%", "0,5%", "700+ UC, SCPI, ETF"),
+        ("Linxea Avenir 2", "Suravenir", "0%", "0,6%", "600+ UC, gestion libre"),
+        ("Lucya Cardif", "BNP Cardif", "0%", "0,5%", "Large choix UC"),
+        ("Boursorama Vie", "Generali", "0%", "0,75%", "Accessible, simple"),
+        ("Placement-direct Vie", "Swisslife", "0%", "0,5-0,8%", "Fonds euros performant"),
+    ]
+    titre("Comparatif assureurs (en ligne, frais bas)")
+    table_ass = '<div style="background:#1A0D12;border-radius:10px;padding:16px;margin:8px 0;"><table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    table_ass += '<tr><th style="text-align:left;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Contrat</th><th style="padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Assureur</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Frais entree</th><th style="text-align:center;padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Frais gestion</th><th style="padding:8px;color:#BBA888;border-bottom:1px solid #C4922A;">Points forts</th></tr>'
+    for nom_c, ass, fe, fg, pts in assureurs:
+        table_ass += f'<tr><td style="padding:6px 8px;color:#FFD060;font-weight:600;border-bottom:1px solid #1A1A1A;">{nom_c}</td><td style="padding:6px 8px;color:#F0E6D8;">{ass}</td><td style="text-align:center;padding:6px 8px;color:#4DFF99;">{fe}</td><td style="text-align:center;padding:6px 8px;color:#CCBBAA;">{fg}</td><td style="padding:6px 8px;color:#CCBBAA;">{pts}</td></tr>'
+    table_ass += '</table></div>'
+    st.markdown(table_ass, unsafe_allow_html=True)
+
+    alerte('vert', "Recommandation : ouvrir 1 ou 2 contrats maintenant avec versement minimum (300-500 EUR) pour demarrer le compteur 8 ans. Repartir le capital apres reception des fonds.")
+    alerte('orange', "Ne JAMAIS mettre plus de 150 000 EUR par assureur (garantie FGAP = 70 000 EUR par assureur).")
+
 def page_simulateur(profil, cap):
     titre("🔬 SIMULATEUR DE SCÉNARIOS")
     C=capital_total(cap); r=profil['rendement_annuel']; rail=profil['rail_mensuel']
@@ -2000,82 +2034,138 @@ def page_crypto(profil, cap):
 
 
 def page_annexe(profil, cap):
-    st.subheader("ANNEXE - REFERENCE COMPLETE v3")
-    st.caption("Document de reference valide par Claude + Perplexity - 12 mars 2026")
+    st.subheader("ANNEXE — REFERENCE COMPLETE")
+    st.caption("Document de reference — v4.7 — 14 mars 2026")
 
-    st.subheader("1. COMMENT CA MARCHE ?")
-    st.write("""Le cockpit gere ton patrimoine sur 42 ans (2026-2067). Il suit le capital, les revenus (AAH, loyers), les charges, et calcule chaque mois combien piocher. En Phase 0 (maintenant), il suit la construction du capital. En Phase 3 (janvier 2027+), il pilote la rente.""")
+    def tableau(titre_t, headers, rows, note=""):
+        html = f'<div style="margin:16px 0;"><div style="color:#FFD060;font-size:15px;font-weight:700;margin-bottom:8px;">{titre_t}</div>'
+        html += '<table style="width:100%;border-collapse:collapse;font-size:13px;background:#1A0D12;border-radius:8px;">'
+        html += '<tr>' + ''.join(f'<th style="text-align:left;padding:8px 10px;color:#BBA888;border-bottom:1px solid #C4922A;">{h}</th>' for h in headers) + '</tr>'
+        for row in rows:
+            html += '<tr>' + ''.join(f'<td style="padding:6px 10px;color:#F0E6D8;border-bottom:1px solid #1A1A1A;">{c}</td>' for c in row) + '</tr>'
+        html += '</table>'
+        if note:
+            html += f'<div style="color:#BBA888;font-size:11px;margin-top:4px;font-style:italic;">{note}</div>'
+        html += '</div>'
+        st.markdown(html, unsafe_allow_html=True)
 
-    st.subheader("2. D'OU VIENT L'ARGENT ?")
-    st.write("**SCI du Pont de la Balme**")
-    st.write("Prix vente signe : 433 000 EUR | Commission agent 6% : -26 000 EUR | Net vendeur : 407 000 EUR")
-    st.write("PV brute : 246 717 EUR | IR 19% : 0 EUR (exonere > 22 ans) | PS 17,2% sur 72% : -30 553 EUR")
-    st.write("Remboursement pret + IRA 3% : -72 100 EUR | Mainlevee : -800 EUR | Dissolution SCI : -3 209 EUR")
-    st.write("Diagnostics + CSI : -910 EUR | Droit de partage 1,10% : -3 294 EUR")
-    st.write("**Tresorerie nette SCI : 296 134 EUR | NET RAPHAEL : 296 100 EUR**")
-    st.divider()
-    st.write("**Succession Jean-Luc Boussy**")
-    st.write("Actif brut : 591 000 EUR (maison 200k + appart 290k + liquidites 30k + voiture 2k + AV 69k)")
-    st.write("Dettes : -29 000 EUR (VEFA 17k + cuisine 7k + frais deces 5k)")
-    st.write("Actif net hors AV : 493 000 EUR | Part heritier (div 2) : 246 500 EUR")
-    st.write("Abattement neveu : -7 967 EUR | Abattement handicap : -159 325 EUR | Base taxable : 79 208 EUR")
-    st.write("Droits 55% : -43 564 EUR | Net apres droits : 202 936 EUR")
-    st.write("AV Jean-Luc (art 990 I, 0 EUR impot) : +22 800 EUR")
-    st.write("Frais (notaire + agences + diag + charges + debarras) : -20 020 EUR")
-    st.write("**NET SUCCESSION RAPHAEL : 217 400 EUR**")
-    st.write("Flux : AV +22 800 EUR en avril | Virement notaire +182 900 EUR en juillet")
-    st.error("CONFIRMER abattement handicap co-heritiere Anne-Lyse aupres du notaire. Sans abattement : ses droits = 131 193 EUR.")
-    st.divider()
-    st.write("**Prix planchers vente (frais caches integres)**")
-    st.write("Maison La Ravoire : **215 000 EUR minimum** (plancher absolu avant frais)")
-    st.write("Appart Bassens : **290 000 EUR minimum** (marge neuf couvre les frais)")
+    titre("1. Le cockpit en bref")
+    st.markdown('<div style="background:#1A0D12;border-radius:10px;padding:16px;color:#F0E6D8;font-size:13px;line-height:1.8;">Le cockpit gere le patrimoine sur 42 ans (2026-2067). Il suit le capital, les revenus (AAH, loyers), les charges, et calcule chaque mois combien piocher.<br><b style="color:#FFD060;">Phase 0</b> (mars 2026 - janvier 2027) : construction du capital, suivi des flux.<br><b style="color:#FFD060;">Phase 3</b> (janvier 2027+) : pilotage de la rente, pioche mensuelle, alertes, trajectoire.</div>', unsafe_allow_html=True)
 
-    st.subheader("3. MEYLAN - LMNP")
-    st.write("**Donation usufruit :** mere 81 ans, usufruit 20% = 33 200 EUR | Droits : 0 EUR | Frais notaire : 3 349 EUR")
-    st.write("**Investissement :** donation 3 349 + travaux 33 000 + mobilier 10 000 = **46 349 EUR**")
-    st.write("**Valeur apres travaux :** appart 199 000 + garage 20 000 = **219 000 EUR**")
-    st.write("**Recettes :** loyer 800 CC x 9,7 mois + garage 110 x 9,7 = **8 827 EUR/an**")
-    st.write("**Charges :** agence 794 + copro 280 + TF 950 + PNO 190 + entretien 1 990 + CFE 300 + comptable 400 + elec 80 = **4 984 EUR/an**")
-    st.write("**Net en poche : 3 843 EUR/an = 320 EUR/mois**")
-    st.write("**Amortissements :** batiment 5 644/an + travaux 3 300/an + mobilier 2 143/an = **11 087 EUR/an**")
-    st.success("Base imposable = 0 EUR jusqu en 2051 (amortissements > resultat)")
+    titre("2. Origine des fonds")
+    tableau("SCI du Pont de la Balme", ["Poste", "Montant"], [
+        ["Prix de vente signe", "+433 000 EUR"],
+        ["Commission agent 6%", "-26 000 EUR"],
+        ["Net vendeur", "407 000 EUR"],
+        ["PS 17,2% sur 72%", "-30 553 EUR"],
+        ["Remboursement pret + IRA 3%", "-72 100 EUR"],
+        ["Mainlevee + dissolution SCI", "-4 009 EUR"],
+        ["Diagnostics + CSI + droit partage", "-4 204 EUR"],
+        ["<b style='color:#4DFF99;'>NET RAPHAEL SCI</b>", "<b style='color:#4DFF99;'>+296 100 EUR</b>"],
+    ], "IR 19% = 0 EUR (exonere apres 22 ans de detention)")
 
-    st.subheader("4. CAPITAL TOTAL")
-    st.write("SCI nette : +296 100 | AV Jean-Luc : +22 800 | Succession nette : +182 900 = **+501 800 EUR**")
-    st.write("Donation usufruit : -3 349 | Travaux : -33 000 | Mobilier : -10 000 | Charges : -1 075 = **-47 424 EUR**")
-    st.write("**CAPITAL NET : 461 000 EUR | PATRIMOINE TOTAL : 680 000 EUR**")
-    st.divider()
-    st.write("**Repartition capital :**")
-    st.write("CC : 500 | Livret A : 22 950 | LDDS : 12 000 | LEP : 10 000 | AV1 : 130 000 | AV2 : 130 000 | AV3 : 155 550")
+    tableau("Succession Jean-Luc Boussy", ["Poste", "Montant"], [
+        ["Actif brut (maison + appart + liquidites + voiture + AV)", "591 000 EUR"],
+        ["Dettes (VEFA + cuisine + frais deces)", "-29 000 EUR"],
+        ["Actif net hors AV", "493 000 EUR"],
+        ["Part heritier (division par 2)", "246 500 EUR"],
+        ["Abattement neveu", "-7 967 EUR"],
+        ["Abattement handicap", "-159 325 EUR"],
+        ["Base taxable", "79 208 EUR"],
+        ["Droits 55%", "-43 564 EUR"],
+        ["Net apres droits", "202 936 EUR"],
+        ["AV Jean-Luc (art 990 I, 0 EUR impot)", "+22 800 EUR"],
+        ["Frais (notaire, agences, debarras...)", "-20 020 EUR"],
+        ["<b style='color:#4DFF99;'>NET SUCCESSION RAPHAEL</b>", "<b style='color:#4DFF99;'>+205 716 EUR</b>"],
+    ])
+    alerte('rouge', "CONFIRMER abattement handicap Anne-Lyse aupres du notaire. Sans abattement : droits = 131 193 EUR.")
 
-    st.subheader("5. ALLOCATIONS")
-    st.write("**AAH (51-64 ans) :** 1 033 EUR/mois si LMNP reel (RFR = 0). Protegee par amortissements.")
-    st.write("**AAH reelle 2026 :** 625 EUR/mois (base revenus 2024 SCI active)")
-    st.write("**Transition :** 2026-2027 : 625 EUR | 2028 : ~900 EUR | 2029+ : 1 033 EUR")
-    st.write("**ASPA (64+ ans) :** prend 3% valeur venale de TOUS les biens. Amortissements LMNP = aucun effet.")
-    st.write("**Seuil ASPA :** capital < 198 433 EUR (~80 ans)")
-    st.write("**Si MDPH >= 80% :** AAH a vie, pas de bascule ASPA, plan renforce")
+    tableau("Ventes immobilieres — planchers", ["Bien", "Plancher", "Note"], [
+        ["Maison Kleber (La Ravoire)", "215 000 EUR", "Strategie degressive 235k a 215k"],
+        ["Appart Bassens", "290 000 EUR", "Marge neuf couvre les frais"],
+    ])
 
-    st.subheader("6. VERSEMENT PARENTS")
-    st.write("325 EUR/mois : nourriture 250 + electricite 50 + eau 5 + TEOM 20")
-    st.write("Art. 205 Code civil - obligation alimentaire - non imposable pour les parents")
+    titre("3. Meylan — LMNP")
+    tableau("Investissement", ["Poste", "Montant"], [
+        ["Donation usufruit (mere 81 ans, 20%)", "-3 349 EUR"],
+        ["Travaux (8 corps de metier)", "-33 000 EUR"],
+        ["Mobilier", "-10 000 EUR"],
+        ["<b>TOTAL INVESTISSEMENT</b>", "<b>-46 349 EUR</b>"],
+    ])
+    tableau("Rentabilite annuelle", ["Poste", "Montant"], [
+        ["Loyer 800 CC x 9,7 mois + garage", "+8 827 EUR/an"],
+        ["Charges (agence, copro, TF, PNO, CFE...)", "-4 984 EUR/an"],
+        ["<b style='color:#4DFF99;'>NET EN POCHE</b>", "<b style='color:#4DFF99;'>+3 843 EUR/an = 320 EUR/mois</b>"],
+    ])
+    tableau("Amortissements LMNP", ["Poste", "Montant/an", "Duree"], [
+        ["Batiment", "5 644 EUR", "25 ans"],
+        ["Travaux", "3 300 EUR", "10 ans"],
+        ["Mobilier", "2 143 EUR", "7 ans"],
+        ["<b>TOTAL</b>", "<b>11 087 EUR/an</b>", ""],
+    ], "Base imposable = 0 EUR jusqu'en 2051")
 
-    st.subheader("7. ACTIONS PRIORITAIRES")
-    st.error("1. Confirmer abattement handicap Anne-Lyse - notaire")
-    st.error("2. Demander dates baux appart + garage aux parents")
-    st.error("3. Appel notaire donation usufruit MEYLAN - 1er avril")
-    st.warning("4. Envoi conge LRAR locataire appart - des signature donation")
-    st.warning("5. Contacter artisans + devis - mai")
-    st.warning("6. Declaration LMNP P0i + CFE + comptable - mai")
-    st.warning("7. Selection agence bail mobilite - mai")
+    titre("4. Capital total")
+    tableau("Construction du capital", ["Source", "Montant"], [
+        ["SCI nette", "+296 100 EUR"],
+        ["AV Jean-Luc", "+22 800 EUR"],
+        ["Succession nette", "+182 900 EUR"],
+        ["Vente Kleber (estime)", "+202 000 EUR"],
+        ["Donation usufruit", "-3 349 EUR"],
+        ["Travaux Meylan", "-33 000 EUR"],
+        ["Mobilier LMNP", "-10 000 EUR"],
+        ["<b style='color:#FFD060;'>TOTAL ENTREES</b>", "<b style='color:#FFD060;'>+501 800 EUR</b>"],
+        ["<b>TOTAL SORTIES</b>", "<b>-47 424 EUR</b>"],
+    ])
+    tableau("Repartition du capital", ["Poche", "Montant", "Role"], [
+        ["Compte courant", "500 EUR", "Depenses courantes"],
+        ["Livret A", "22 950 EUR", "Buffer 6 mois"],
+        ["LDDS", "12 000 EUR", "Reserve"],
+        ["LEP", "10 000 EUR", "Epargne protegee"],
+        ["AV1", "130 000 EUR", "Rente principale"],
+        ["AV2", "130 000 EUR", "Rente secondaire"],
+        ["AV3", "155 550 EUR", "Reserve strategique"],
+    ])
 
-    st.subheader("8. COCKPIT - COMMENT IL GERE")
-    st.write("**Phase 0 (mars 2026 - janvier 2027) :** suit la construction du capital, les flux, le planning")
-    st.write("**Phase 3 (janvier 2027+) :** pilote la rente, calcule la pioche mensuelle, les alertes, la trajectoire")
-    st.write("**Jalons :** chaque flux a une saisie, un ecart, une confirmation 1 mois et 6 mois")
-    st.write("**AAH :** saisie annuelle, recalcul automatique du budget")
-    st.write("**MDPH :** si >= 80%, bascule automatique AAH a vie")
-    st.write("**Version : v4.7 - 14 mars 2026**")
+    titre("5. Allocations")
+    tableau("AAH — Projection", ["Periode", "Montant", "Explication"], [
+        ["2026-2027", "625 EUR/mois", "Base revenus 2024 (SCI active)"],
+        ["2028", "~900 EUR/mois", "Transition revenus 2026"],
+        ["2029-2038", "1 033 EUR/mois", "Plein taux (RFR = 0 grace LMNP)"],
+        ["2039+ (si MDPH < 80%)", "0 EUR", "Bascule ASPA a 64 ans"],
+        ["2039+ (si MDPH >= 80%)", "1 033 EUR/mois", "AAH a vie, pas de bascule"],
+    ], "L'AAH est protegee par les amortissements LMNP qui maintiennent le RFR a 0.")
+    st.markdown('<div style="background:#2A1800;border:1px solid #D4A017;border-radius:8px;padding:10px 14px;color:#FFD060;font-size:13px;margin:8px 0;"><b>ASPA (64+ ans) :</b> prend 3% valeur venale de TOUS les biens. Seuil : capital &lt; 198 433 EUR (~80 ans).</div>', unsafe_allow_html=True)
+
+    titre("6. Versement parents")
+    tableau("Detail mensuel", ["Poste", "Montant"], [
+        ["Nourriture", "250 EUR"],
+        ["Electricite", "50 EUR"],
+        ["Eau", "5 EUR"],
+        ["TEOM", "20 EUR"],
+        ["<b>TOTAL</b>", "<b>325 EUR/mois</b>"],
+    ], "Art. 205 Code civil — obligation alimentaire — non imposable pour les parents")
+
+    titre("7. Actions prioritaires")
+    tableau("Planning", ["Urgence", "Action", "Detail"], [
+        ["<span style='color:#FF7777;'>URGENT</span>", "Confirmer abattement handicap Anne-Lyse", "Notaire"],
+        ["<span style='color:#FF7777;'>URGENT</span>", "Demander dates baux appart + garage", "Parents"],
+        ["<span style='color:#FF7777;'>URGENT</span>", "Appel notaire donation usufruit Meylan", "1er avril"],
+        ["<span style='color:#FFD060;'>AVRIL</span>", "Envoi conge LRAR locataire appart", "Des signature donation"],
+        ["<span style='color:#FFD060;'>MAI</span>", "Contacter artisans + devis", "8 corps de metier"],
+        ["<span style='color:#FFD060;'>MAI</span>", "Declaration LMNP P0i + CFE + comptable", ""],
+        ["<span style='color:#FFD060;'>MAI</span>", "Selection agence bail mobilite", ""],
+    ])
+
+    titre("8. Fonctionnement du cockpit")
+    tableau("Modules", ["Fonction", "Description"], [
+        ["Phase 0", "Suit la construction du capital, les flux, le planning"],
+        ["Phase 3", "Pilote la rente, calcule la pioche mensuelle, alertes, trajectoire"],
+        ["Jalons", "Chaque flux : saisie, ecart, confirmation 1 mois et 6 mois"],
+        ["AAH", "Saisie annuelle, recalcul automatique du budget"],
+        ["MDPH", "Si >= 80%, bascule automatique AAH a vie"],
+        ["Depenses", "Suivi mensuel par categorie, 31 postes, budget estimatif"],
+        ["ARVA", "Calcul rente optimale pour 50 000 EUR a 92 ans"],
+    ])
 
 
 def page_depenses(profil, cap):
