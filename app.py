@@ -59,6 +59,9 @@ section.main button:hover {
 [data-testid="stNotification"] {display:none !important}
 .element-container:has(.stException) {display:none !important}
 pre, code, .stCodeBlock, [data-testid="stCode"] {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
+.stException, [data-testid="stException"], .element-container iframe[title="streamlit_js_eval.streamlit_js_eval"] {display:none !important;}
+div[data-testid="stNotification"][data-type="error"] {display:none !important;}
+.stAlert[data-baseweb="notification"] {display:none !important;}
 pre, code, .stCodeBlock {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 </style>""", unsafe_allow_html=True)
 
