@@ -2042,7 +2042,151 @@ def page_annexe(profil, cap):
     st.write("**Jalons :** chaque flux a une saisie, un ecart, une confirmation 1 mois et 6 mois")
     st.write("**AAH :** saisie annuelle, recalcul automatique du budget")
     st.write("**MDPH :** si >= 80%, bascule automatique AAH a vie")
-    st.write("**Version : v4.3 - 12 mars 2026**")
+    st.write("**Version : v4.7 - 14 mars 2026**")
+
+
+def page_depenses(profil, cap):
+    from datetime import date
+    today = date.today()
+    rail = profil['rail_mensuel']
+    titre("MODULE DEPENSES — SUIVI MENSUEL")
+
+    # Categories avec estimations moyennes
+    categories = {
+        'Alimentation': {'priorite': 'essentiel', 'estimation': 350, 'icon': 'A'},
+        'Sante / Pharmacie': {'priorite': 'essentiel', 'estimation': 50, 'icon': 'S'},
+        'Transport / Essence': {'priorite': 'essentiel', 'estimation': 80, 'icon': 'T'},
+        'Electricite': {'priorite': 'essentiel', 'estimation': 50, 'icon': 'E'},
+        'Eau': {'priorite': 'essentiel', 'estimation': 5, 'icon': 'O'},
+        'Internet / Tel': {'priorite': 'essentiel', 'estimation': 40, 'icon': 'I'},
+        'Assurances': {'priorite': 'essentiel', 'estimation': 60, 'icon': 'As'},
+        'Hygiene / Entretien': {'priorite': 'secondaire', 'estimation': 30, 'icon': 'H'},
+        'Vetements': {'priorite': 'secondaire', 'estimation': 30, 'icon': 'V'},
+        'Equipement maison': {'priorite': 'secondaire', 'estimation': 20, 'icon': 'Eq'},
+        'Amazon / Achats en ligne': {'priorite': 'secondaire', 'estimation': 50, 'icon': 'Am'},
+        'Loisirs / Sorties': {'priorite': 'plaisir', 'estimation': 0, 'icon': 'L'},
+        'Restaurants / Cafes': {'priorite': 'plaisir', 'estimation': 0, 'icon': 'R'},
+        'Cadeaux': {'priorite': 'plaisir', 'estimation': 0, 'icon': 'C'},
+        'Divers': {'priorite': 'secondaire', 'estimation': 20, 'icon': 'D'},
+    }
+
+    # Charger depenses du mois
+    mois_str = today.strftime('%Y-%m')
+    db = db_wrapper.connect()
+    c = db.cursor()
+    c.execute("SELECT * FROM depenses WHERE date LIKE %s ORDER BY date DESC", (mois_str + '%',))
+    depenses_mois = [dict(r) for r in c.fetchall()]
+    db.close()
+
+    # Calculs
+    total_essentiel = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'essentiel')
+    total_secondaire = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'secondaire')
+    total_plaisir = sum(d['montant'] for d in depenses_mois if d['priorite'] == 'plaisir')
+    total_mois = total_essentiel + total_secondaire + total_plaisir
+    reste = rail - total_mois
+    budget_essentiel = sum(v['estimation'] for v in categories.values() if v['priorite'] == 'essentiel')
+    budget_secondaire = sum(v['estimation'] for v in categories.values() if v['priorite'] == 'secondaire')
+    budget_loisir = rail - budget_essentiel - budget_secondaire
+
+    # Resume en haut
+    st.markdown(f'<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;"><div style="flex:1;min-width:150px;background:#1A0D12;border:2px solid #FF7777;border-radius:12px;padding:14px;text-align:center;"><div style="color:#BBA888;font-size:10px;text-transform:uppercase;">ESSENTIEL</div><div style="color:#FF7777;font-size:28px;font-weight:900;">{total_essentiel:,.0f} EUR</div><div style="color:#CCBBAA;font-size:11px;">budget {budget_essentiel} EUR</div></div><div style="flex:1;min-width:150px;background:#1A0D12;border:2px solid #FFD060;border-radius:12px;padding:14px;text-align:center;"><div style="color:#BBA888;font-size:10px;text-transform:uppercase;">SECONDAIRE</div><div style="color:#FFD060;font-size:28px;font-weight:900;">{total_secondaire:,.0f} EUR</div><div style="color:#CCBBAA;font-size:11px;">budget {budget_secondaire} EUR</div></div><div style="flex:1;min-width:150px;background:#1A0D12;border:2px solid #4DFF99;border-radius:12px;padding:14px;text-align:center;"><div style="color:#BBA888;font-size:10px;text-transform:uppercase;">LOISIR DISPO</div><div style="color:#4DFF99;font-size:28px;font-weight:900;">{max(0, budget_loisir - total_plaisir):,.0f} EUR</div><div style="color:#CCBBAA;font-size:11px;">depense {total_plaisir:,.0f} EUR</div></div><div style="flex:1;min-width:150px;background:#1A0D12;border:2px solid {"#4DFF99" if reste > 0 else "#FF7777"};border-radius:12px;padding:14px;text-align:center;"><div style="color:#BBA888;font-size:10px;text-transform:uppercase;">RESTE CE MOIS</div><div style="color:{"#4DFF99" if reste > 0 else "#FF7777"};font-size:28px;font-weight:900;">{reste:,.0f} EUR</div><div style="color:#CCBBAA;font-size:11px;">sur {rail:,.0f} EUR</div></div></div>', unsafe_allow_html=True)
+
+    # Saisie rapide
+    titre("Ajouter une depense")
+    c1, c2, c3, c4 = st.columns([3, 2, 2, 1])
+    with c1:
+        desc = st.text_input("Description", placeholder="Ex: Courses Carrefour, Amazon, pharmacie...")
+    with c2:
+        cat = st.selectbox("Categorie", list(categories.keys()))
+    with c3:
+        montant = st.number_input("Montant (EUR)", value=0.0, step=1.0, min_value=0.0)
+    with c4:
+        prio = categories[cat]['priorite']
+        st.markdown(f'<div style="margin-top:28px;padding:6px 10px;background:{"#2A0F0F" if prio=="essentiel" else ("#2A1800" if prio=="secondaire" else "#0A2010")};border-radius:6px;text-align:center;"><span style="color:{"#FF7777" if prio=="essentiel" else ("#FFD060" if prio=="secondaire" else "#4DFF99")};font-size:11px;font-weight:700;">{prio.upper()}</span></div>', unsafe_allow_html=True)
+    if st.button("Ajouter", key="add_dep"):
+        if desc and montant > 0:
+            db2 = db_wrapper.connect()
+            db2.execute("INSERT INTO depenses (date, montant, categorie, priorite, description, source) VALUES (%s, %s, %s, %s, %s, %s)", (str(today), montant, cat, prio, desc, 'manuel'))
+            db2.commit()
+            db2.close()
+            st.success(f"{desc} : {montant:,.0f} EUR ({cat})")
+            st.rerun()
+        else:
+            st.error("Remplir description et montant")
+
+    # Liste par priorite
+    titre("Essentiel")
+    dep_ess = [d for d in depenses_mois if d['priorite'] == 'essentiel']
+    if dep_ess:
+        for d in dep_ess:
+            c1, c2, c3, c4 = st.columns([3, 2, 1, 1])
+            with c1:
+                st.write(f"**{d['description']}**")
+            with c2:
+                st.caption(f"{d['categorie']} | {d['date']}")
+            with c3:
+                st.write(f"**{d['montant']:,.0f} EUR**")
+            with c4:
+                if st.button("X", key=f"del_{d['id']}"):
+                    db3 = db_wrapper.connect()
+                    db3.execute("DELETE FROM depenses WHERE id = %s", (d['id'],))
+                    db3.commit()
+                    db3.close()
+                    st.rerun()
+    else:
+        st.caption("Aucune depense essentielle ce mois")
+
+    titre("Secondaire")
+    dep_sec = [d for d in depenses_mois if d['priorite'] == 'secondaire']
+    if dep_sec:
+        for d in dep_sec:
+            c1, c2, c3, c4 = st.columns([3, 2, 1, 1])
+            with c1:
+                st.write(f"**{d['description']}**")
+            with c2:
+                st.caption(f"{d['categorie']} | {d['date']}")
+            with c3:
+                st.write(f"**{d['montant']:,.0f} EUR**")
+            with c4:
+                if st.button("X", key=f"del_{d['id']}"):
+                    db3 = db_wrapper.connect()
+                    db3.execute("DELETE FROM depenses WHERE id = %s", (d['id'],))
+                    db3.commit()
+                    db3.close()
+                    st.rerun()
+    else:
+        st.caption("Aucune depense secondaire ce mois")
+
+    titre("Loisirs / Plaisir")
+    dep_pl = [d for d in depenses_mois if d['priorite'] == 'plaisir']
+    if dep_pl:
+        for d in dep_pl:
+            c1, c2, c3, c4 = st.columns([3, 2, 1, 1])
+            with c1:
+                st.write(f"**{d['description']}**")
+            with c2:
+                st.caption(f"{d['categorie']} | {d['date']}")
+            with c3:
+                st.write(f"**{d['montant']:,.0f} EUR**")
+            with c4:
+                if st.button("X", key=f"del_{d['id']}"):
+                    db3 = db_wrapper.connect()
+                    db3.execute("DELETE FROM depenses WHERE id = %s", (d['id'],))
+                    db3.commit()
+                    db3.close()
+                    st.rerun()
+    else:
+        st.caption("Aucune depense loisir ce mois — tout le budget loisir est disponible !")
+
+    # Budget estimatif par categorie
+    titre("Budget mensuel estimatif par categorie")
+    for cat_name, cat_info in categories.items():
+        depense_cat = sum(d['montant'] for d in depenses_mois if d['categorie'] == cat_name)
+        est = cat_info['estimation']
+        reste_cat = est - depense_cat
+        prio_col = "#FF7777" if cat_info['priorite'] == 'essentiel' else ("#FFD060" if cat_info['priorite'] == 'secondaire' else "#4DFF99")
+        if est > 0:
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #1A0D12;"><span style="color:#F0E6D8;">{cat_name}</span><span style="color:{prio_col};">{depense_cat:,.0f} / {est} EUR</span><span style="color:{"#4DFF99" if reste_cat >= 0 else "#FF7777"};">{"+" if reste_cat >= 0 else ""}{reste_cat:,.0f} EUR</span></div>', unsafe_allow_html=True)
 
 
 def main():
@@ -2135,7 +2279,8 @@ button:hover, .stButton>button:hover {
             "BoursoBank",
             "Crypto",
             "Annexe - Reference",
-            "Parametres","Saisie capital",
+            "Saisie capital",
+            "Depenses",
         ])
         st.markdown("---")
         st.caption("v4.7 - Mars 2026")
@@ -2158,6 +2303,7 @@ button:hover, .stButton>button:hover {
         "Annexe - Reference":      lambda: page_annexe(profil,cap),
         "Parametres":              lambda: page_parametres(profil,cap),
         "Saisie capital":          lambda: page_saisie(profil,cap),
+        "Depenses":                lambda: page_depenses(profil,cap),
     }[page]()
 
 if __name__=="__main__":
