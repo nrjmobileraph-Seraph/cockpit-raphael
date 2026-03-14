@@ -199,6 +199,7 @@ def save_surplus(montant, destination, note):
     conn.commit()
     conn.close()
 
+@st.cache_data(ttl=300)
 def get_historique_surplus():
     conn = db_wrapper.connect()
     c = conn.cursor()
@@ -289,6 +290,7 @@ def pioche_ce_mois(profil, cap):
         src = "AV1"
     return pioche, src
 
+@st.cache_data(ttl=300)
 def calculer_alertes(profil, cap):
     alertes = []
     age = age_actuel(profil)
@@ -865,6 +867,7 @@ def page_saisie(profil, cap):
 
 
 # ─── HELPERS DB LMNP ─────────────────────────────────────────────────────────
+@st.cache_data(ttl=300)
 def get_lmnp():
     conn = db_wrapper.connect()
     c = conn.cursor()
