@@ -55,6 +55,8 @@ section.main button:hover {
     color: #FFD060 !important;
 }
 .stException {display:none !important}
+pre, code, .stCodeBlock, [data-testid="stCode"] {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
+pre, code, .stCodeBlock {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 </style>""", unsafe_allow_html=True)
 
 
@@ -399,6 +401,15 @@ def page_dashboard(profil, cap):
     if phase_0:
         # === DASHBOARD PHASE 0 : CONSTRUCTION ===
         
+        # Budget jour et mois en haut
+        import calendar
+        _jdm = calendar.monthrange(today.year, today.month)[1]
+        _bj = int(profil['rail_mensuel'] / _jdm)
+        _depense = _bj * (today.day - 1)
+        _rm = int(profil['rail_mensuel'] - _depense)
+        _jr = _jdm - today.day + 1
+        st.markdown(f'<div style="display:flex;gap:16px;margin-bottom:16px;"><div style="flex:1;background:#1A0D12;border:2px solid #4DFF99;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">BUDGET AUJOURD HUI</div><div style="color:#4DFF99;font-size:36px;font-weight:900;">{_bj} EUR</div><div style="color:#CCBBAA;font-size:12px;">par jour</div></div><div style="flex:1;background:#1A0D12;border:2px solid #FFD060;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">RESTE CE MOIS</div><div style="color:#FFD060;font-size:36px;font-weight:900;">{_rm} EUR</div><div style="color:#CCBBAA;font-size:12px;">sur {_jr} jours</div></div></div>', unsafe_allow_html=True)
+
         st.markdown('<div style="text-align:center;padding:30px 0 16px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2 0 2 6</span><span style="font-family:Garamond,Georgia,serif;font-size:44px;color:#665544;letter-spacing:10px;margin:0 30px;opacity:0.6;">&middot;&middot;&middot;</span><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2 0 6 7</span><br><span style="font-family:Garamond,Georgia,serif;font-size:28px;letter-spacing:8px;font-style:italic;background:linear-gradient(90deg, #665544, #BBA888, #C4922A, #BBA888, #665544);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">&mdash; 92 ans de plan, et au-dela ...</span></div>', unsafe_allow_html=True)
         titre("COCKPIT PATRIMONIAL - PHASE CONSTRUCTION")
 
@@ -2055,7 +2066,7 @@ button:hover, .stButton>button:hover {
             st.session_state.sidebar_state = "expanded"
             st.rerun()
     else:
-        st.markdown(f'<style>section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;width:300px!important;min-width:300px!important;}}section[data-testid="stSidebarUserContent"]{{padding-top:4rem!important;}}button[data-testid="stBaseButton-headerNoPadding"]{{display:none!important;}}section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{TOGGLE_BTN}}}</style>', unsafe_allow_html=True)
+        st.markdown(f'<style>section[data-testid="stSidebar"]{{display:block!important;visibility:visible!important;transform:translateX(0)!important;width:300px!important;min-width:300px!important;}}section[data-testid="stSidebarUserContent"]{{padding-top:5rem!important;}}button[data-testid="stBaseButton-headerNoPadding"]{{display:none!important;}}section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"]>div:first-child div[data-testid="stButton"] button{{{TOGGLE_BTN}}}</style>', unsafe_allow_html=True)
     with st.sidebar:
         if st.button("\u276E", key="close_sb"):
             st.session_state.sidebar_state = "collapsed"
