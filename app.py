@@ -173,7 +173,7 @@ def init_db():
     except:
         pass
 def get_profil():
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     row = c.execute("SELECT * FROM profil WHERE id=1").fetchone()
     cols = [d[0] for d in c.description]
@@ -181,7 +181,7 @@ def get_profil():
     return dict(zip(cols, row)) if row else {}
 
 def get_capital():
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     row = c.execute("SELECT * FROM capital ORDER BY id DESC LIMIT 1").fetchone()
     cols = [d[0] for d in c.description]
@@ -189,7 +189,7 @@ def get_capital():
     return dict(zip(cols, row)) if row else {}
 
 def save_capital(d):
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("""INSERT INTO capital
         (date,cc,livret_a,ldds,lep,av1,av2,av3,
@@ -207,7 +207,7 @@ def save_capital(d):
     conn.close()
 
 def save_profil(d):
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("""UPDATE profil SET aah_mensuel=?,pch_mensuel=?,loyer_net=?,
         taux_mdph=?,rendement_annuel=?,rail_mensuel=?,updated=CURRENT_TIMESTAMP
@@ -217,7 +217,7 @@ def save_profil(d):
     conn.close()
 
 def save_surplus(montant, destination, note):
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("INSERT INTO surplus_affectation (montant,destination,note) VALUES (?,?,?)",
               (montant, destination, note))
@@ -225,7 +225,7 @@ def save_surplus(montant, destination, note):
     conn.close()
 
 def get_historique_surplus():
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     rows = c.execute("SELECT date,montant,destination,note FROM surplus_affectation ORDER BY id DESC LIMIT 10").fetchall()
     conn.close()
@@ -893,7 +893,7 @@ def page_saisie(profil, cap):
 # ─── HELPERS DB LMNP ─────────────────────────────────────────────────────────
 def get_lmnp():
     import sqlite3
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     row = c.execute("SELECT * FROM lmnp WHERE id=1").fetchone()
     cols = [d[0] for d in c.description]
@@ -902,7 +902,7 @@ def get_lmnp():
 
 def save_lmnp(d):
     import sqlite3
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("""UPDATE lmnp SET date_acquisition=?,valeur_acquisition=?,valeur_terrain=?,
         travaux=?,loyer_brut_mensuel=?,charges_annuelles=?,
@@ -1279,7 +1279,7 @@ def page_jalons_old(profil, cap):
     from datetime import datetime, date
     titre("CHRONOLOGIE COMPLETE - PILOTAGE AUTOMATIQUE")
     age = age_actuel(profil)
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     try:
         rows = c.execute("SELECT date_cible,age_cible,action,montant,sens,categorie,auto,fait,note FROM chronologie ORDER BY date_cible").fetchall()
@@ -1875,7 +1875,7 @@ def page_boursobank(profil, cap):
     import sqlite3, urllib.parse
     titre("BoursoBank - Connexion Tink")
     st.info("Ce module permet de connecter ton compte BoursoBank via Tink (DSP2).")
-    conn = db_wrapper.connect(DB_PATH)
+    conn = db_wrapper.connect()
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS tink_config (id INTEGER PRIMARY KEY, client_id TEXT DEFAULT '', client_secret TEXT DEFAULT '', updated TEXT DEFAULT CURRENT_TIMESTAMP)")
     if not c.execute("SELECT id FROM tink_config").fetchone():
@@ -1888,7 +1888,7 @@ def page_boursobank(profil, cap):
     cid = st.text_input("Client ID Tink", value=old_cid)
     cs = st.text_input("Client Secret Tink", value=old_cs, type="password")
     if st.button("Enregistrer les cles"):
-        conn = db_wrapper.connect(DB_PATH)
+        conn = db_wrapper.connect()
         conn.execute("UPDATE tink_config SET client_id=?, client_secret=?, updated=CURRENT_TIMESTAMP WHERE id=1", (cid, cs))
         conn.commit(); conn.close()
         st.success("Cles enregistrees !")
