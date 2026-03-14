@@ -480,7 +480,7 @@ def page_dashboard(profil, cap):
                 st.rerun()
 
         # AAH reelle (625 en 2026-2027, pas 1033)
-        aah_reelle = 1033
+        aah_reelle = 625
         versement_parents = 325
         loyers_actuels = 0  # pas encore de loyers LMNP
         reste_vivre = aah_reelle - versement_parents + loyers_actuels
