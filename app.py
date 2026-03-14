@@ -55,6 +55,9 @@ section.main button:hover {
     color: #FFD060 !important;
 }
 .stException {display:none !important}
+.stAlert {display:none !important}
+[data-testid="stNotification"] {display:none !important}
+.element-container:has(.stException) {display:none !important}
 pre, code, .stCodeBlock, [data-testid="stCode"] {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 pre, code, .stCodeBlock {background:#1A0D12 !important; color:#FFD060 !important; border:1px solid #C4922A !important; border-radius:8px !important;}
 </style>""", unsafe_allow_html=True)
