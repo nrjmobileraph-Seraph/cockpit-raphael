@@ -537,10 +537,7 @@ def page_dashboard(profil, cap):
             </div>""", unsafe_allow_html=True)
 
         # Objectif final
-        st.markdown(f"""<div style="background:#0A0A0A;border:1px solid #333;border-radius:8px;padding:12px;margin:16px 0;text-align:center;">
-            <span style="color:#BBA888;font-size:12px;">OBJECTIF JANVIER 2027 :</span>
-            <span style="color:#4DFF99;font-size:14px;font-weight:700;"> Capital 454 000 EUR · Loyers 320 EUR/mois · AAH protegee</span>
-        </div>""", unsafe_allow_html=True)
+        st.markdown('<div style="background:#0A0A0A;border:1px solid #333;border-radius:8px;padding:12px;margin:16px 0;text-align:center;"><span style="color:#BBA888;font-size:12px;">RENTREES EN COURS :</span><span style="color:#CCBBAA;font-size:13px;"> AV Jean-Luc (avril) + SCI (juin) + Succession (juillet) + Vente Kleber (automne)</span></div>', unsafe_allow_html=True)
 
         # Prochaines actions
         titre("PROCHAINES ACTIONS")
