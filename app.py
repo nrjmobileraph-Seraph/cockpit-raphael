@@ -624,6 +624,30 @@ def page_dashboard(profil, cap):
             <div style="color:#BBA888;font-size:12px;text-transform:uppercase;">COMPTE A REBOURS</div>
             <div style="color:#FFD060;font-size:48px;font-weight:900;">{jours_restants} jours</div>
             <div style="color:#DDCCBB;font-size:14px;">avant LMNP operationnel (15 janvier 2027)</div>
+        # === INDICATEUR C92 + SURPLUS + MUSIQUE ===
+        _mois_r = mois_restants(profil)
+        _W = arva(C, _mois_r, profil['rendement_annuel']) if _mois_r > 0 else 0
+        _rail = profil['rail_mensuel']
+        _surplus = _W - _rail
+        _c92_est = 50000 + (_surplus * _mois_r) if _surplus > 0 else 50000
+        _c92_col = "#4DFF99" if _c92_est >= 50000 else ("#FFD060" if _c92_est > 30000 else "#FF7777")
+        st.markdown(f'<div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;"><div style="flex:2;min-width:200px;background:#1A0D12;border:2px solid {_c92_col};border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:10px;text-transform:uppercase;">C92 ESTIME (50 ans → 92 ans)</div><div style="color:{_c92_col};font-size:32px;font-weight:900;">{_c92_est:,.0f} EUR</div><div style="color:#CCBBAA;font-size:11px;">Objectif : 50 000 EUR</div></div>', unsafe_allow_html=True)
+        if _surplus > 0:
+            st.markdown(f'<div style="flex:1;min-width:150px;background:#0A2010;border:2px solid #4DFF99;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:10px;text-transform:uppercase;">SURPLUS CE MOIS</div><div style="color:#4DFF99;font-size:28px;font-weight:900;">+{_surplus:,.0f} EUR</div><div style="color:#CCBBAA;font-size:11px;">ARVA {_W:,.0f} - Rail {_rail:,.0f}</div></div></div>', unsafe_allow_html=True)
+            _sc1, _sc2 = st.columns(2)
+            with _sc1:
+                if st.button("DEPENSER ce surplus", key="surplus_dep"):
+                    st.info(f"Rail ce mois : {_W:,.0f} EUR (bonus +{_surplus:,.0f})")
+            with _sc2:
+                if st.button("RENFORCER C92", key="surplus_c92"):
+                    save_surplus(_surplus * 12, "C92 renforce", "Surplus mensuel epargne")
+                    st.success(f"+{_surplus:,.0f} EUR/mois affectes au C92")
+                    st.rerun()
+        else:
+            st.markdown('</div>', unsafe_allow_html=True)
+        if st.session_state.get('intro_son') and len(st.session_state.get('intro_son', b'')) > 100:
+            with st.expander("Musique d ambiance"):
+                st.audio(st.session_state['intro_son'], format='audio/mp3')
         </div>""", unsafe_allow_html=True)
 
     else:
