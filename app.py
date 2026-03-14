@@ -456,7 +456,7 @@ def page_dashboard(profil, cap):
                 mr = rj['montant_reel'] if rj['montant_reel'] else rj['montant']
                 if rj['sens'] == 'entree': capital_reel += mr
                 elif rj['sens'] == 'sortie': capital_reel -= mr
-        objectif_capital = 461000
+        objectif_capital = 454000
         if 'masquer_objectif' not in st.session_state:
             st.session_state.masquer_objectif = False
         if not st.session_state.masquer_objectif:
@@ -538,7 +538,7 @@ def page_dashboard(profil, cap):
         # Objectif final
         st.markdown(f"""<div style="background:#0A0A0A;border:1px solid #333;border-radius:8px;padding:12px;margin:16px 0;text-align:center;">
             <span style="color:#BBA888;font-size:12px;">OBJECTIF JANVIER 2027 :</span>
-            <span style="color:#4DFF99;font-size:14px;font-weight:700;"> Capital 461 000 EUR · Loyers 320 EUR/mois · AAH protegee</span>
+            <span style="color:#4DFF99;font-size:14px;font-weight:700;"> Capital 454 000 EUR · Loyers 320 EUR/mois · AAH protegee</span>
         </div>""", unsafe_allow_html=True)
 
         # Prochaines actions
@@ -1864,9 +1864,9 @@ def page_parametres(profil, cap):
     total_new = cc + livret_a + ldds + lep + av1 + av2 + av3
     st.metric("Total apres modification", f"{total_new:,.0f} EUR")
 
-    cap_changes = abs(total_new - 461000) > 1
+    cap_changes = abs(total_new - 454000) > 1
     if cap_changes:
-        st.warning(f"Capital modifie : {461000:,.0f} -> {total_new:,.0f} EUR (ecart {total_new-461000:+,.0f})")
+        st.warning(f"Capital modifie : {454000:,.0f} -> {total_new:,.0f} EUR (ecart {total_new-454000:+,.0f})")
         if 'cap_confirm' not in st.session_state:
             st.session_state.cap_confirm = 0
         if st.session_state.cap_confirm == 0:
@@ -2114,6 +2114,7 @@ def page_placements(profil, cap):
     actions = [("1", "Ouvrir 3 AV maintenant (500 EUR chacune) — Linxea Spirit 2, Lucya Cardif, Linxea Avenir 2"),("2", "Ouvrir PEA Boursorama (versement initial 500 EUR)"),("3", "Remplir LEP au plafond (10 000 EUR)"),("4", "Quand fonds arrivent : repartir selon allocation ci-dessus"),("5", "Ouvrir Linxea Avenir 2 EN EPARGNE HANDICAP"),("6", "Acheter 2 050 EUR de BTC spot sur plateforme PSAN (OKX ou Binance)"),("7", "Crowdfunding : 10 x 1 000 EUR sur Homunity et ClubFunding")]
     for num, act in actions:
         st.markdown(f'<div style="background:#140810;border-left:3px solid #C4922A;padding:8px 14px;margin:4px 0;border-radius:0 6px 6px 0;"><span style="color:#FFD060;font-weight:700;">Etape {num}</span> <span style="color:#F0E6D8;">{act}</span></div>', unsafe_allow_html=True)
+    st.markdown('<div style="background:#2A0F0F;border:2px solid #FF7777;border-radius:10px;padding:16px;margin:16px 0;"><div style="color:#FF7777;font-size:15px;font-weight:700;">BUFFER ANTI-CRISE (a constituer a 62 ans)</div><div style="color:#F0E6D8;font-size:13px;margin-top:8px;">A 62 ans, constituer 100 000 EUR en livrets + fonds euros Boursorama (rachat 48h). Couvre 3,5 ans de pioche pure a 2 500 EUR/mois sans toucher ETF/SCPI meme si marches crashent. Le temps que ca remonte.</div></div>', unsafe_allow_html=True)
     st.markdown('<div style="background:#0A2010;border:2px solid #4DFF99;border-radius:10px;padding:16px;margin:16px 0;"><div style="color:#4DFF99;font-size:15px;font-weight:700;">EPARGNE HANDICAP (art. 199 septies CGI)</div><div style="color:#F0E6D8;font-size:13px;margin-top:8px;">Ouvrir Linxea Avenir 2 en contrat Epargne Handicap. Les prelevements sociaux (17,2%) ne sont preleves qu au rachat, pas chaque annee. Les rentes sont exonerees du calcul AAH et ASPA. Sur 40 ans, c est des dizaines de milliers d euros de difference.</div></div>', unsafe_allow_html=True)
 
 def page_annexe(profil, cap):
