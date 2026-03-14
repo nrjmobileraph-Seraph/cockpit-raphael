@@ -531,9 +531,9 @@ def page_dashboard(profil, cap):
             </div>""", unsafe_allow_html=True)
         with k3:
             st.markdown(f"""<div style="background:#1A0D12;border:2px solid #8B0000;border-radius:12px;padding:16px;text-align:center;">
-                <div style="color:#BBA888;font-size:11px;text-transform:uppercase;">RESTE POUR VIVRE</div>
-                <div style="color:#FF7777;font-size:36px;font-weight:900;">{reste_vivre} EUR</div>
-                <div style="color:#DDCCBB;font-size:12px;">AAH {aah_reelle} - parents {versement_parents}</div>
+                <div style="color:#BBA888;font-size:11px;text-transform:uppercase;">VERSEMENT PARENTS</div>
+                <div style="color:#FF9944;font-size:36px;font-weight:900;">-{versement_parents} EUR</div>
+                <div style="color:#DDCCBB;font-size:12px;">Obligation alimentaire mensuelle</div>
             </div>""", unsafe_allow_html=True)
 
         # Objectif final
@@ -1247,7 +1247,7 @@ def page_jalons(profil, cap):
                 st.success(f"Flux ajoute : {nom_flux} | {sens_flux} | {montant_flux:,.0f} EUR")
                 st.rerun()
             else:
-                st.error("Donnez un nom au flux")
+                st.error("Donnez un nom au flux.")
 
     db = db_wrapper.connect()
     # row_factory removed
@@ -1536,7 +1536,7 @@ def page_caf_pch(profil, cap):
     today = date.today()
     annee = str(today.year)
 
-    st.subheader("AAH / CAF / PCH (Allocations)")
+    st.subheader("AAH / CAF / PCH")
 
     # Lire AAH suivi
     db = db_wrapper.connect()
@@ -2001,8 +2001,8 @@ Document généré par Cockpit Patrimonial Raphaël
 
 def page_boursobank(profil, cap):
     import urllib.parse
-    titre("BoursoBank - Connexion Tink")
-    st.info("Ce module permet de connecter ton compte BoursoBank via Tink (DSP2).")
+    titre("BoursoBank & Finary - Connexion Tink")
+    st.info("Ce module permet de connecter ton compte BoursoBank & Finary via Tink (DSP2).")
     try:
         conn = db_wrapper.connect()
         c = conn.cursor()
@@ -2482,7 +2482,7 @@ def page_depenses(profil, cap):
             st.success(f"{desc} : {montant:,.0f} EUR ({cat})")
             st.rerun()
         else:
-            st.error("Remplir description et montant")
+            st.error("Remplir description et montant.")
 
     # Liste par priorite
     titre("Essentiel")
@@ -2675,49 +2675,49 @@ button:hover, .stButton>button:hover {
         st.markdown("---")
         page=st.radio("Navigation",[
             "Tableau de bord",
-            "Moteur ARVA (Rente)",
-            "Suivi AV x 3 contrats",
-            "Scenarios simulateurs",
-            "Fiscal & CAF",
-            "Impots & Declarations",
-            "LMNP (Location Meublee) & IRL",
+            "Moteur ARVA",
+            "Suivi AV",
+            "Simulateur de scenarios",
+            "Fiscal & Optimisation",
+            "Impots & Declaration",
+            "LMNP & IRL",
             "Jalons & Actions",
-            "AAH / CAF / PCH (Allocations)",
+            "AAH / CAF / PCH",
             "Inflation",
             "Succession",
-            "Mode Senior",
-            "Export Bilan",
-            "BoursoBank",
+            "Retraite & Senior",
+            "Export du Bilan",
+            "BoursoBank & Finary",
             "Crypto",
-            "Annexe - Reference",
-            "Saisie capital",
+            "Annexe & References",
+            "Saisie Capital",
             "Depenses",
-            "Macro economique",
+            "Macro Economique",
             "Placements",
         ])
         st.markdown("---")
         st.caption("v4.9 - Mars 2026")
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
-        "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
-        "Suivi AV x 3 contrats": lambda: page_suivi_av(profil,cap),
-        "Scenarios simulateurs": lambda: page_simulateur(profil,cap),
-        "Fiscal & CAF":          lambda: page_fiscal(profil,cap),
-        "Impots & Declarations":    lambda: page_impots(profil,cap),
-        "LMNP (Location Meublee) & IRL":            lambda: page_lmnp(profil,cap),
+        "Moteur ARVA":           lambda: page_arva(profil,cap),
+        "Suivi AV": lambda: page_suivi_av(profil,cap),
+        "Simulateur de scenarios": lambda: page_simulateur(profil,cap),
+        "Fiscal & Optimisation":          lambda: page_fiscal(profil,cap),
+        "Impots & Declaration":    lambda: page_impots(profil,cap),
+        "LMNP & IRL":            lambda: page_lmnp(profil,cap),
         "Jalons & Actions":       lambda: page_jalons(profil,cap),
-        "AAH / CAF / PCH (Allocations)":       lambda: page_caf_pch(profil,cap),
+        "AAH / CAF / PCH":       lambda: page_caf_pch(profil,cap),
         "Inflation":              lambda: page_inflation(profil,cap),
         "Succession":             lambda: page_succession(profil,cap),
-        "Mode Senior":            lambda: page_senior(profil,cap),
-        "Export Bilan":    lambda: page_export(profil,cap),
-        "BoursoBank":             lambda: page_boursobank(profil,cap),
+        "Retraite & Senior":            lambda: page_senior(profil,cap),
+        "Export du Bilan":    lambda: page_export(profil,cap),
+        "BoursoBank & Finary":             lambda: page_boursobank(profil,cap),
         "Crypto":                  lambda: page_crypto(profil,cap),
-        "Annexe - Reference":      lambda: page_annexe(profil,cap),
+        "Annexe & References":      lambda: page_annexe(profil,cap),
         "Parametres":              lambda: page_parametres(profil,cap),
-        "Saisie capital":          lambda: page_saisie(profil,cap),
+        "Saisie Capital":          lambda: page_saisie(profil,cap),
         "Depenses":                lambda: page_depenses(profil,cap),
-        "Macro economique":        lambda: page_macro(profil,cap),
+        "Macro Economique":        lambda: page_macro(profil,cap),
         "Placements":              lambda: page_placements(profil,cap),
     }[page]()
 
