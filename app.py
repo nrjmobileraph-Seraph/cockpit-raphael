@@ -145,6 +145,7 @@ def init_db():
     pass
 
 
+@st.cache_data(ttl=300)
 def get_profil():
     conn = db_wrapper.connect()
     c = conn.cursor()
@@ -153,6 +154,7 @@ def get_profil():
     conn.close()
     return dict(zip(cols, row)) if row else {}
 
+@st.cache_data(ttl=300)
 def get_capital():
     conn = db_wrapper.connect()
     c = conn.cursor()
