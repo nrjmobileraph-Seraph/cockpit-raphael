@@ -800,24 +800,38 @@ LMNP (formulaire 2031 + liasse 2033) :
     st.code(texte,language="")
 
 def page_fiscal(profil, cap):
-    titre("💶 FISCAL & CAF")
+    titre("FISCAL & CAF — OPTIMISATION ANNUELLE")
     aah=profil['aah_mensuel']
-    seuil=st.number_input("Seuil ressources CAF Isère (€/an)",value=12396.0,step=100.0)
-    titre("Tax-Gain Harvesting — Chaque 1er Janvier")
-    st.info("✨ IR = 0€ toute la vie → cristalliser 4 600€ de PV AV chaque année = opération gratuite à ne jamais manquer")
+    pch=profil.get('pch_mensuel', 0)
+    loyer=profil['loyer_net']
+
+    titre("1. Revenus declares (IR)")
+    rev_aah = aah * 12
+    rev_pch = pch * 12
+    rev_loyer = loyer * 12
+    st.markdown(f'<div style="background:#1A0D12;border-radius:10px;padding:16px;"><div style="color:#BBA888;font-size:11px;margin-bottom:8px;">REVENUS ANNUELS</div><div style="color:#F0E6D8;margin:3px 0;">AAH : <b>{rev_aah:,.0f} EUR/an</b> — exoneree IR</div><div style="color:#F0E6D8;margin:3px 0;">PCH : <b>{rev_pch:,.0f} EUR/an</b> — exoneree IR</div><div style="color:#F0E6D8;margin:3px 0;">Loyer LMNP : <b>{rev_loyer:,.0f} EUR/an</b> — BIC 0 EUR (amortissement)</div><div style="border-top:1px solid #333;margin:8px 0;"></div><div style="color:#4DFF99;font-size:16px;font-weight:700;">IR = 0 EUR — Revenu imposable = 0 EUR</div><div style="color:#CCBBAA;font-size:12px;">Grace au statut MDPH + amortissement LMNP</div></div>', unsafe_allow_html=True)
+
+    titre("2. Tax-Gain Harvesting — Chaque 1er Janvier")
+    st.info("IR = 0 EUR toute la vie. Cristalliser 4 600 EUR de PV AV chaque annee = operation gratuite a ne jamais manquer")
     c1,c2=st.columns(2)
     with c1:
-        rachat=st.number_input("Rachat AV1 prévu (€)",value=15000.0,step=500.0)
-        tpv=st.number_input("Taux PV AV1 (%)",value=5.0,step=0.5)/100
+        rachat=st.number_input("Rachat AV prevu (EUR)",value=15000.0,step=500.0)
+        tpv=st.number_input("Taux PV (%)",value=5.0,step=0.5)/100
         pv=rachat*tpv; ab=abattement_dispo(cap,'av1'); pvi=max(0,pv-ab); ps=pvi*0.172
     with c2:
-        st.markdown(f'<div style="background:linear-gradient(145deg, #1A0D12 0%, #150A10 100%);border-radius:8px;padding:16px;"><div style="color:#F0E6D8;margin:3px 0;">Rachat : <b>{rachat:,.0f}€</b></div><div style="color:#F0E6D8;margin:3px 0;">PV : <b>{pv:,.0f}€</b> · Abattement : <b>−{min(pv,ab):,.0f}€</b></div><div style="color:#F0E6D8;margin:3px 0;">PV imposable : <b>{pvi:,.0f}€</b></div><div style="color:#1A6B4B;font-size:16px;font-weight:700;margin-top:8px;">IR : 0 €</div><div style="color:{"#1A6B4B" if ps<300 else "#D4A017"};">PS 17,2% : <b>{ps:.0f}€</b></div><div style="color:#4DFF99;font-size:20px;font-weight:800;">Total fiscal : {ps:.0f} €</div></div>',unsafe_allow_html=True)
-    titre("Vérification CAF avant rachat")
+        st.markdown(f'<div style="background:#1A0D12;border-radius:8px;padding:16px;"><div style="color:#F0E6D8;margin:3px 0;">Rachat : <b>{rachat:,.0f} EUR</b></div><div style="color:#F0E6D8;margin:3px 0;">PV : <b>{pv:,.0f} EUR</b> — Abattement : <b>-{min(pv,ab):,.0f} EUR</b></div><div style="color:#F0E6D8;margin:3px 0;">PV imposable : <b>{pvi:,.0f} EUR</b></div><div style="color:#1A6B4B;font-size:16px;font-weight:700;margin-top:8px;">IR : 0 EUR</div><div style="color:{"#1A6B4B" if ps<300 else "#D4A017"};">PS 17,2% : <b>{ps:.0f} EUR</b></div><div style="color:#4DFF99;font-size:20px;font-weight:800;">Total fiscal : {ps:.0f} EUR</div></div>',unsafe_allow_html=True)
+
+    titre("3. Verification CAF avant rachat")
+    seuil=st.number_input("Seuil ressources CAF Isere (EUR/an)",value=12396.0,step=100.0)
     rev_caf=aah*12+pv; marge=seuil-rev_caf
     alerte("vert" if marge>500 else("orange" if marge>0 else "rouge"),
-           f"Ressources CAF estimées : {rev_caf:,.0f}€/an · Marge : {marge:+,.0f}€")
-    if marge<0: alerte('rouge',"🔴 BLOQUER le rachat. Contacter CAF Isère avant toute action.")
-    st.caption("⚠️ Seules les PLUS-VALUES comptent pour la CAF, pas le capital.")
+           f"Ressources CAF estimees : {rev_caf:,.0f} EUR/an | Seuil : {seuil:,.0f} EUR | Marge : {marge:+,.0f} EUR")
+    if marge<0: alerte('rouge',"BLOQUER le rachat. Contacter CAF Isere avant toute action.")
+    st.caption("Seules les PLUS-VALUES comptent pour la CAF, pas le capital rembourse.")
+
+    titre("4. Declaration annuelle — Checklist")
+    for item in ["Declarer revenus AV (case 2CH ou 2DH selon contrat)", "Declarer BIC LMNP (formulaire 2031 + 2033)", "Verifier AAH non declaree (exoneree)", "Verifier PCH non declaree (exoneree)", "Tax-gain harvesting : cristalliser 4 600 EUR PV avant 31/12", "Conserver releves AV + avis imposition 3 ans"]:
+        st.markdown(f"- {item}")
 
 def page_saisie(profil, cap):
     titre("✏️ MISE À JOUR ANNUELLE")
@@ -1568,30 +1582,46 @@ def page_inflation(profil, cap):
 
 # ─── PAGE SUCCESSION ──────────────────────────────────────────────────────────
 def page_succession(profil, cap):
-    titre("📜 MODULE SUCCESSION — ANNE-LYSE")
+    titre("MODULE SUCCESSION — HERITAGE JEAN-LUC BOUSSY")
     age = age_actuel(profil)
     C = capital_total(cap)
     tot_av = cap['av1'] + cap['av2'] + cap['av3']
     hors_av = C - tot_av
 
-    titre("1. Capital résiduel estimé par âge")
+    titre("1. Synthese heritage Jean-Luc")
+    sci = 296100
+    av_jl = 22800
+    succ_nette = 182900
+    kleber = 202000
+    total_brut = sci + av_jl + succ_nette
+    st.markdown(f'<div style="background:#1A0D12;border:2px solid #C4922A;border-radius:12px;padding:20px;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;margin-bottom:12px;">HERITAGE JEAN-LUC — DETAIL</div><div style="color:#F0E6D8;margin:4px 0;">SCI du Pont de la Balme (vente 433 000 EUR) : <b style="color:#4DFF99;">+{sci:,.0f} EUR</b> net Raphael</div><div style="color:#F0E6D8;margin:4px 0;">Assurance-vie Jean-Luc (art 990 I, 0 EUR impot) : <b style="color:#4DFF99;">+{av_jl:,.0f} EUR</b></div><div style="color:#F0E6D8;margin:4px 0;">Succession nette (hors AV, apres droits) : <b style="color:#4DFF99;">+{succ_nette:,.0f} EUR</b></div><div style="border-top:1px solid #C4922A;margin:12px 0;"></div><div style="color:#FFD060;font-size:20px;font-weight:900;">TOTAL HERITAGE : +{total_brut:,.0f} EUR</div></div>', unsafe_allow_html=True)
+
+    titre("2. Vente maison Kleber (La Ravoire)")
+    st.markdown(f'<div style="background:#1A0D12;border-radius:10px;padding:16px;"><div style="color:#BBA888;font-size:11px;margin-bottom:8px;">MAISON 8 RUE KLEBER — LA RAVOIRE</div><div style="color:#F0E6D8;margin:3px 0;">Surface habitable : ~70-80 m2 + 30-40 m2 a refaire</div><div style="color:#F0E6D8;margin:3px 0;">Strategie : degressif 235k → 230k → 225k → 220k → 215k (paliers 3 semaines)</div><div style="color:#F0E6D8;margin:3px 0;">Plancher absolu : <b>215 000 EUR</b></div><div style="color:#F0E6D8;margin:3px 0;">Net estime (frais agence/notaire) : <b style="color:#4DFF99;">{kleber:,.0f} EUR</b></div><div style="color:#FF9944;font-size:12px;margin-top:8px;">Prerequis : audit DPE obligatoire + mesure surface exacte</div></div>', unsafe_allow_html=True)
+
+    titre("3. Capital residuel estime par age")
     ages_s = [60, 64, 70, 75, 80, 85, 90, 92]
     for a in ages_s:
         c_est = trajectoire_theorique(profil, a)
         coul = "vert" if c_est > 100000 else ("orange" if c_est > 50000 else "rouge")
-        kpi(f"À {a} ans", f"{c_est:,.0f} €", "", coul)
+        kpi(f"A {a} ans", f"{c_est:,.0f} EUR", "", coul)
 
-    titre("2. Assurances-vie — hors succession")
-    st.markdown(f'<div style="background:linear-gradient(145deg, #1A0D12 0%, #150A10 100%);border-radius:10px;padding:16px;"><div style="color:#BBA888;font-size:12px;margin-bottom:8px;">AV HORS SUCCESSION</div><div style="color:#F0E6D8;margin:3px 0;">AV1 : <b>{cap["av1"]:,.0f}€</b> · Abattement 152 500€</div><div style="color:#F0E6D8;margin:3px 0;">AV2 : <b>{cap["av2"]:,.0f}€</b> · Abattement 152 500€</div><div style="color:#F0E6D8;margin:3px 0;">AV3 : <b>{cap["av3"]:,.0f}€</b> · Abattement 152 500€</div><div style="color:#4DFF99;font-size:16px;font-weight:700;margin-top:8px;">Total AV : {tot_av:,.0f}€ · Abattement total : 457 500€</div><div style="color:#DDCCBB;font-size:12px;margin-top:4px;">Si total AV &lt; 457 500€ → 0€ de droits sur les AV</div></div>', unsafe_allow_html=True)
+    titre("4. Assurances-vie — hors succession")
+    st.markdown(f'<div style="background:#1A0D12;border-radius:10px;padding:16px;"><div style="color:#BBA888;font-size:12px;margin-bottom:8px;">AV HORS SUCCESSION (art 990 I CGI)</div><div style="color:#F0E6D8;margin:3px 0;">AV1 : <b>{cap["av1"]:,.0f} EUR</b> — Abattement 152 500 EUR</div><div style="color:#F0E6D8;margin:3px 0;">AV2 : <b>{cap["av2"]:,.0f} EUR</b> — Abattement 152 500 EUR</div><div style="color:#F0E6D8;margin:3px 0;">AV3 : <b>{cap["av3"]:,.0f} EUR</b> — Abattement 152 500 EUR</div><div style="color:#4DFF99;font-size:16px;font-weight:700;margin-top:8px;">Total AV : {tot_av:,.0f} EUR — Abattement total : 457 500 EUR</div><div style="color:#DDCCBB;font-size:12px;margin-top:4px;">Si total AV &lt; 457 500 EUR : 0 EUR de droits sur les AV</div></div>', unsafe_allow_html=True)
 
-    titre("3. Actifs hors AV — soumis aux droits")
+    titre("5. Actifs hors AV — soumis aux droits")
     ab_fs = 15932
     base = max(0, hors_av - ab_fs)
     droits = base * 0.35 if base <= 24430 else 24430*0.35 + (base-24430)*0.45
-    st.markdown(f'<div style="background:linear-gradient(145deg, #1A0D12 0%, #150A10 100%);border-radius:10px;padding:16px;"><div style="color:#F0E6D8;margin:3px 0;">Hors AV : <b>{hors_av:,.0f}€</b> (CC + livrets + LEP)</div><div style="color:#F0E6D8;margin:3px 0;">Abattement frère/sœur : <b>−{ab_fs:,}€</b></div><div style="color:#F0E6D8;margin:3px 0;">Base taxable : <b>{base:,.0f}€</b></div><div style="color:#FF9944;font-size:16px;font-weight:700;margin-top:8px;">Droits estimés : {droits:,.0f}€</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background:#1A0D12;border-radius:10px;padding:16px;"><div style="color:#F0E6D8;margin:3px 0;">Hors AV : <b>{hors_av:,.0f} EUR</b> (CC + livrets + LEP)</div><div style="color:#F0E6D8;margin:3px 0;">Abattement frere/soeur : <b>-{ab_fs:,} EUR</b></div><div style="color:#F0E6D8;margin:3px 0;">Base taxable : <b>{base:,.0f} EUR</b></div><div style="color:#FF9944;font-size:16px;font-weight:700;margin-top:8px;">Droits estimes : {droits:,.0f} EUR</div></div>', unsafe_allow_html=True)
 
-    titre("4. Checklist notaire")
-    for item in ["Testament olographe ou authentique","Mandat de protection future","Donation nue-propriété T3 Meylan","Vérifier clauses bénéficiaires AV (Anne-Lyse)","Contrat obsèques (optionnel)"]:
+    titre("6. Risques identifies")
+    alerte('orange', "Abattement handicap Anne-Lyse (159 325 EUR) NON CONFIRME par le notaire — 87 000 EUR en jeu")
+    alerte('rouge', "SCI : compromis PAS ENCORE SIGNE — la vente peut capoter")
+    alerte('orange', "Audit DPE Kleber obligatoire avant mise en vente")
+
+    titre("7. Checklist notaire")
+    for item in ["Testament olographe ou authentique","Mandat de protection future","Donation nue-propriete T3 Meylan (apres 28/04)","Verifier clauses beneficiaires AV (Anne-Lyse)","Confirmer abattement handicap Anne-Lyse","Contrat obseques (optionnel)"]:
         st.markdown(f"- {item}")
 
 
@@ -1774,19 +1804,7 @@ def page_parametres(profil, cap):
 
     st.divider()
     st.subheader("Backup et restauration")
-    import os
-    st.info('Donnees sur Supabase.')
-    st.divider()
-    if os.path.exists(backup_dir):
-        backups_list = sorted(os.listdir(backup_dir), reverse=True)
-        if backups_list:
-            st.warning("ATTENTION : restaurer un backup ecrase toutes les donnees actuelles.")
-            choix = st.selectbox("Choisir un backup", backups_list, key="restore_bk")
-            if st.button("Restaurer ce backup"):
-                import shutil
-                pass
-                st.success(f"Backup restaure. Rechargez la page.")
-                st.rerun()
+    st.info('Les donnees sont hebergees sur Supabase (PostgreSQL cloud). Les backups sont geres automatiquement.')
 
 
 def page_export(profil, cap):
@@ -1847,16 +1865,23 @@ def page_boursobank(profil, cap):
     import urllib.parse
     titre("BoursoBank - Connexion Tink")
     st.info("Ce module permet de connecter ton compte BoursoBank via Tink (DSP2).")
-    conn = db_wrapper.connect()
-    c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS tink_config (id INTEGER PRIMARY KEY, client_id TEXT DEFAULT '', client_secret TEXT DEFAULT '', updated TEXT DEFAULT CURRENT_TIMESTAMP)")
-    if not c.execute("SELECT id FROM tink_config").fetchone():
-        c.execute("INSERT INTO tink_config DEFAULT VALUES")
-    conn.commit()
-    row = c.execute("SELECT client_id, client_secret FROM tink_config WHERE id=1").fetchone()
-    conn.close()
-    old_cid = row[0] if row else ""
-    old_cs = row[1] if row else ""
+    try:
+        conn = db_wrapper.connect()
+        c = conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS tink_config (id SERIAL PRIMARY KEY, client_id TEXT DEFAULT '', client_secret TEXT DEFAULT '', updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        conn.commit()
+        c.execute("SELECT id FROM tink_config")
+        if not c.fetchone():
+            c.execute("INSERT INTO tink_config (client_id, client_secret) VALUES ('', '')")
+            conn.commit()
+        c.execute("SELECT client_id, client_secret FROM tink_config WHERE id=1")
+        row = c.fetchone()
+        conn.close()
+        old_cid = dict(row).get('client_id', '') if row else ""
+        old_cs = dict(row).get('client_secret', '') if row else ""
+    except:
+        old_cid = ""
+        old_cs = ""
     cid = st.text_input("Client ID Tink", value=old_cid)
     cs = st.text_input("Client Secret Tink", value=old_cs, type="password")
     if st.button("Enregistrer les cles"):
