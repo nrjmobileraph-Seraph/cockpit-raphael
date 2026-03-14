@@ -132,7 +132,7 @@ st.markdown("""
   [data-testid="stSidebar"] .stRadio label { color:#E8D5B5 !important; }
 
   @keyframes fadeSlideIn { 0% { opacity:0; transform:translateY(30px) scale(0.98); } 100% { opacity:1; transform:translateY(0); } }
-  .main .block-container { animation: fadeSlideIn 0.6s ease-out; }
+  .main .block-container { animation: fadeSlideIn 1.5s ease-out; }
   @keyframes sideGlow { 0% { box-shadow: inset -2px 0 8px rgba(196,146,42,0); } 50% { box-shadow: inset -2px 0 8px rgba(196,146,42,0.3); } 100% { box-shadow: inset -2px 0 8px rgba(196,146,42,0); } }
   .stRadio label[data-checked="true"] { animation: sideGlow 1.5s ease infinite; }
 
@@ -441,6 +441,7 @@ def page_dashboard(profil, cap):
         _jr = _jdm - today.day + 1
         st.markdown(f'<div style="display:flex;gap:16px;margin-bottom:16px;"><div style="flex:1;background:#1A0D12;border:2px solid #4DFF99;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">BUDGET AUJOURD HUI</div><div style="color:#4DFF99;font-size:36px;font-weight:900;">{_bj} EUR</div><div style="color:#CCBBAA;font-size:12px;">par jour</div></div><div style="flex:1;background:#1A0D12;border:2px solid #FFD060;border-radius:12px;padding:16px;text-align:center;"><div style="color:#BBA888;font-size:11px;text-transform:uppercase;">RESTE CE MOIS</div><div style="color:#FFD060;font-size:36px;font-weight:900;">{_rm} EUR</div><div style="color:#CCBBAA;font-size:12px;">sur {_jr} jours</div></div></div>', unsafe_allow_html=True)
 
+        st.markdown('<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;"><div style="flex:1;min-width:110px;background:#1A0D12;border:2px solid #FF7777;border-radius:10px;padding:8px;text-align:center;"><div style="color:#BBA888;font-size:9px;text-transform:uppercase;">PLANCHER</div><div style="color:#FF7777;font-size:18px;font-weight:900;">2 200 EUR</div></div><div style="flex:1;min-width:110px;background:#1A0D12;border:2px solid #FFD060;border-radius:10px;padding:8px;text-align:center;"><div style="color:#BBA888;font-size:9px;text-transform:uppercase;">CIBLE</div><div style="color:#FFD060;font-size:18px;font-weight:900;">2 500 EUR</div></div><div style="flex:1;min-width:110px;background:#1A0D12;border:2px solid #4DFF99;border-radius:10px;padding:8px;text-align:center;"><div style="color:#BBA888;font-size:9px;text-transform:uppercase;">BONUS</div><div style="color:#4DFF99;font-size:18px;font-weight:900;">2 700 EUR</div></div></div>', unsafe_allow_html=True)
         titre("COCKPIT PATRIMONIAL - PHASE CONSTRUCTION")
 
         # Capital reel cumule depuis les jalons
@@ -456,7 +457,7 @@ def page_dashboard(profil, cap):
                 mr = rj['montant_reel'] if rj['montant_reel'] else rj['montant']
                 if rj['sens'] == 'entree': capital_reel += mr
                 elif rj['sens'] == 'sortie': capital_reel -= mr
-        objectif_capital = 461000
+        objectif_capital = 454000
         if 'masquer_objectif' not in st.session_state:
             st.session_state.masquer_objectif = False
         if not st.session_state.masquer_objectif:
@@ -538,7 +539,7 @@ def page_dashboard(profil, cap):
         # Objectif final
         st.markdown(f"""<div style="background:#0A0A0A;border:1px solid #333;border-radius:8px;padding:12px;margin:16px 0;text-align:center;">
             <span style="color:#BBA888;font-size:12px;">OBJECTIF JANVIER 2027 :</span>
-            <span style="color:#4DFF99;font-size:14px;font-weight:700;"> Capital 461 000 EUR · Loyers 320 EUR/mois · AAH protegee</span>
+            <span style="color:#4DFF99;font-size:14px;font-weight:700;"> Capital 454 000 EUR · Loyers 320 EUR/mois · AAH protegee</span>
         </div>""", unsafe_allow_html=True)
 
         # Prochaines actions
@@ -1864,9 +1865,9 @@ def page_parametres(profil, cap):
     total_new = cc + livret_a + ldds + lep + av1 + av2 + av3
     st.metric("Total apres modification", f"{total_new:,.0f} EUR")
 
-    cap_changes = abs(total_new - 461000) > 1
+    cap_changes = abs(total_new - 454000) > 1
     if cap_changes:
-        st.warning(f"Capital modifie : {461000:,.0f} -> {total_new:,.0f} EUR (ecart {total_new-461000:+,.0f})")
+        st.warning(f"Capital modifie : {454000:,.0f} -> {total_new:,.0f} EUR (ecart {total_new-454000:+,.0f})")
         if 'cap_confirm' not in st.session_state:
             st.session_state.cap_confirm = 0
         if st.session_state.cap_confirm == 0:
@@ -2118,7 +2119,7 @@ def page_placements(profil, cap):
 
 def page_annexe(profil, cap):
     st.subheader("ANNEXE — REFERENCE COMPLETE")
-    st.caption("Document de reference — v4.8 — 14 mars 2026")
+    st.caption("Document de reference — v4.9 — 15 mars 2026")
 
     def tableau(titre_t, headers, rows, note=""):
         html = f'<div style="margin:16px 0;"><div style="color:#FFD060;font-size:15px;font-weight:700;margin-bottom:8px;">{titre_t}</div>'
@@ -2595,14 +2596,14 @@ button:hover, .stButton>button:hover {
         st.markdown('<div style="text-align:center;padding:80px 0 20px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:72px;font-weight:300;font-style:italic;letter-spacing:20px;background:linear-gradient(90deg, #8B0000, #C4922A, #FFD060, #C4922A, #8B0000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">COCKPIT</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;"><span style="font-family:Garamond,Georgia,serif;font-size:28px;letter-spacing:10px;background:linear-gradient(90deg, #665544, #BBA888, #C4922A, #BBA888, #665544);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">P A T R I M O N I A L</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;padding:30px 0;"><span style="font-family:Garamond,Georgia,serif;font-size:18px;color:#BBA888;font-style:italic;letter-spacing:4px;">2026 &middot;&middot;&middot; 2067</span></div>', unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;padding:0 0 40px 0;"><span style="font-family:Georgia,serif;font-size:14px;color:#665544;">v4.8 &mdash; Raphael</span></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;padding:0 0 40px 0;"><span style="font-family:Georgia,serif;font-size:14px;color:#665544;">v4.9 &mdash; Raphael</span></div>', unsafe_allow_html=True)
         st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
         c1, c2, c3 = st.columns([3, 2, 3])
         with c2:
             st.markdown('<div style="text-align:center;margin-bottom:10px;font-family:Garamond,Georgia,serif;font-size:12px;color:#665544;letter-spacing:3px;">Cliquez pour entrer</div>', unsafe_allow_html=True)
-            if st.session_state.get('intro_video'):
+            if st.session_state.get('intro_video') and len(st.session_state['intro_video']) > 100:
                 st.video(st.session_state['intro_video'], format='video/mp4')
-            if st.session_state.get('intro_son'):
+            if st.session_state.get('intro_son') and len(st.session_state['intro_son']) > 100:
                 st.audio(st.session_state['intro_son'], format='audio/mp3')
             if st.button("C O N N E X I O N", use_container_width=True):
                 st.session_state.connected = True
@@ -2671,7 +2672,7 @@ button:hover, .stButton>button:hover {
             "Placements",
         ])
         st.markdown("---")
-        st.caption("v4.8 - Mars 2026")
+        st.caption("v4.9 - Mars 2026")
     {
         "Tableau de bord":        lambda: page_dashboard(profil,cap),
         "Moteur ARVA (Rente)":           lambda: page_arva(profil,cap),
