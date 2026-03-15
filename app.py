@@ -2548,6 +2548,26 @@ def page_depenses(profil, cap):
     st.markdown(table_html, unsafe_allow_html=True)
 
 
+
+def get_finary_soldes():
+    """Lit les soldes depuis Finary"""
+    import os
+    try:
+        from finary_uapi.signin import signin
+        from finary_uapi.user_me import get_user_me
+        from finary_uapi.views import dashboard
+        email = os.environ.get('FINARY_EMAIL', '')
+        password = os.environ.get('FINARY_PASSWORD', '')
+        if not email or not password:
+            return None
+        result = signin(email, password)
+        if result:
+            data = dashboard.get_dashboard(result)
+            return data
+    except Exception as e:
+        return None
+    return None
+
 def main():
     if 'connected' not in st.session_state:
         st.session_state.connected = False
