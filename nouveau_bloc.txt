@@ -1,0 +1,20 @@
+        # === POCHES CAPITAL : cartes + fleches + grand rectangle ===
+        _cap_items = [("AV1 Cardif", cap["av1"]),("AV2 Spirit", cap["av2"]),("AV3 Abeille", cap["av3"]),("AV4 Bourso", cap.get("av4", 0)),("Livret A", cap["livret_a"]),("LDDS", cap["ldds"]),("LEP", cap["lep"]),("PEA", cap.get("pea", 0)),("Crypto", cap.get("crypto", 0)),("Crowdfunding", cap.get("crowdfunding", 0))]
+        _cap_total = sum(v for _, v in _cap_items)
+        _cards = ''
+        for _n, _v in _cap_items:
+            _vc = '#FFD060' if _v > 0 else '#665544'
+            _cards += f'<div style="flex:1;min-width:85px;text-align:center;"><div style="background:#1A0D12;border:1px solid #C4922A;border-radius:8px;padding:6px 3px;"><span style="color:#BBA888;font-size:9px;">{_n}</span><br><span style="color:{_vc};font-size:13px;font-weight:bold;">{_v:,.0f} \u20ac</span></div></div>'
+        st.markdown(f'<div style="display:flex;gap:5px;align-items:flex-start;margin:0 0 0 0;flex-wrap:wrap;">{_cards}</div>', unsafe_allow_html=True)
+        _arrows = ''
+        for _ in _cap_items:
+            _arrows += '<div style="flex:1;min-width:85px;text-align:center;color:#C4922A;font-size:18px;line-height:1;">\u25BC</div>'
+        st.markdown(f'<div style="display:flex;gap:5px;margin:0;flex-wrap:wrap;">{_arrows}</div>', unsafe_allow_html=True)
+        _mid = len(_cap_items) // 2
+        _vals = ''
+        for _idx, (_n, _v) in enumerate(_cap_items):
+            _vc = '#FFD060' if _v > 0 else '#665544'
+            _vals += f'<div style="flex:1;min-width:85px;text-align:center;"><span style="color:{_vc};font-size:12px;font-weight:bold;">{_v:,.0f}</span></div>'
+            if _idx == _mid - 1:
+                _vals += f'<div style="min-width:100px;text-align:center;background:#2A1800;border:2px solid #FFD060;border-radius:8px;padding:6px 10px;"><span style="color:#FFD060;font-size:10px;">TOTAL</span><br><span style="color:#FFD060;font-size:16px;font-weight:900;">{_cap_total:,.0f} \u20ac</span></div>'
+        st.markdown(f'<div style="background:#1A0D12;border:2px solid #C4922A;border-radius:10px;padding:10px 5px;margin:0 0 12px 0;display:flex;gap:5px;align-items:center;flex-wrap:wrap;">{_vals}</div>', unsafe_allow_html=True)
